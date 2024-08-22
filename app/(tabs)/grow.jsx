@@ -6,6 +6,8 @@ import { useState } from "react";
 const Grow = () => {
   const [isEnabled, setIsEnabled] = useState(false);
 
+  const [IP, setIP] = useState("http://192.168.0.110");
+
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
     setWind(!isEnabled); // Llama a tu función setWind aquí
@@ -18,7 +20,7 @@ const Grow = () => {
         console.log("Wind updated " + boolean);
       }
     };
-    xhttp.open("GET", "http://192.168.0.107/setviento?onoff=" + boolean, true);
+    xhttp.open("GET", `${IP}/setviento?onoff=` + boolean, true);
     xhttp.send();
   };
 
