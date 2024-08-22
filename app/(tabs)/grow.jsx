@@ -1,52 +1,73 @@
-import { Text, Switch, View, TextInput, Button } from "react-native";
+import {
+  Text,
+  Switch,
+  View,
+  TextInput,
+  Button,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 
 const Grow = () => {
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isEnabled1, setIsEnabled1] = useState(false);
+  const [isEnabled2, setIsEnabled2] = useState(false);
   const [IP, setIP] = useState("http://192.168.0.110");
   const [currentTime, setCurrentTime] = useState("");
   const [currentTemperature, setCurrentTemperature] = useState("");
-  const [horaEncendido, setHoraEncendido] = useState("");
-  const [horaApagado, setHoraApagado] = useState("");
-  const [fotoperiodoIndex, setFotoperiodoIndex] = useState("");
 
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
-    setWind(!isEnabled);
+  // Estado para los horarios de los fotoperiodos
+  const [horaEncendido1, setHoraEncendido1] = useState("");
+  const [horaApagado1, setHoraApagado1] = useState("");
+  const [horaEncendido2, setHoraEncendido2] = useState("");
+  const [horaApagado2, setHoraApagado2] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Funciones para manejar los toggles
+  const toggleSwitch1 = () => {
+    setIsEnabled1((previousState) => !previousState);
+    setWind(0, !isEnabled1);
   };
-
-  const setWind = (boolean) => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        console.log("Wind updated " + boolean);
-      }
-    };
-    xhttp.open("GET", `${IP}/setviento?onoff=` + boolean, true);
-    xhttp.send();
-  };
-
-  /* REFACTORY */
-  const [isEnabled2, setIsEnabled2] = useState(false);
 
   const toggleSwitch2 = () => {
     setIsEnabled2((previousState) => !previousState);
-    setWind2(!isEnabled2); // Llama a tu función setWind aquí
+    setWind(1, !isEnabled2);
   };
 
-  const setWind2 = (boolean) => {
+  // Función para enviar el estado del viento al servidor
+  const setWind = (index, boolean) => {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
-        console.log("Wind updated " + boolean);
+        console.log(`Wind for Fotoperiodo ${index} updated: ` + boolean);
       }
     };
-    xhttp.open("GET", `${IP}/setviento2?onoff=` + boolean, true);
+    if (boolean == true) {
+      xhttp.open("GET", `${IP}/prenderFotoperiodo${index + 1}`, true);
+    } else {
+      xhttp.open("GET", `${IP}/apagarFotoperiodo${index + 1}`, true);
+    }
     xhttp.send();
   };
-  /* REFACTORY */
 
+  // Función para guardar los horarios del fotoperiodo
+  const saveFotoperiodo = (index, horaEncendido, horaApagado) => {
+    const [horaEnc, minEnc] = horaEncendido.split(":").map(Number);
+    const [horaApag, minApag] = horaApagado.split(":").map(Number);
+
+    const url = `${IP}/setFotoperiodo?index=${index}&horaEncendido=${horaEnc}&minutoEncendido=${minEnc}&horaApagado=${horaApag}&minutoApagado=${minApag}`;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        console.log(`Fotoperiodo ${index} updated`);
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  };
+
+  // Función para leer la temperatura actual
   const readTemperature = () => {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -59,23 +80,55 @@ const Grow = () => {
     xhttp.send();
   };
 
-  const saveFotoperiodo = () => {
-    const [horaEnc, minEnc] = horaEncendido.split(":").map(Number);
-    const [horaApag, minApag] = horaApagado.split(":").map(Number);
-
-    const url = `${IP}/setFotoperiodo?index=${fotoperiodoIndex}&horaEncendido=${horaEnc}&minutoEncendido=${minEnc}&horaApagado=${horaApag}&minutoApagado=${minApag}`;
-
+  const loadInitialState = () => {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        console.log("Fotoperiodo updated");
+      if (this.readyState === 4) {
+        if (this.status === 200) {
+          const response = JSON.parse(this.responseText);
+          console.log("Response from Arduino:", response); // Log para verificar el JSON
+
+          // Cargar datos para Fotoperiodo 1
+          setIsEnabled1(
+            response.fotoperiodo1.estado === 1 ||
+              response.fotoperiodo1.estado === "true"
+          );
+          setHoraEncendido1(
+            `${response.fotoperiodo1.horaEncendido}:${response.fotoperiodo1.minutoEncendido}`
+          );
+          setHoraApagado1(
+            `${response.fotoperiodo1.horaApagado}:${response.fotoperiodo1.minutoApagado}`
+          );
+
+          // Cargar datos para Fotoperiodo 2
+          setIsEnabled2(
+            response.fotoperiodo2.estado === 1 ||
+              response.fotoperiodo2.estado === "true"
+          );
+          setHoraEncendido2(
+            `${response.fotoperiodo2.horaEncendido}:${response.fotoperiodo2.minutoEncendido}`
+          );
+          setHoraApagado2(
+            `${response.fotoperiodo2.horaApagado}:${response.fotoperiodo2.minutoApagado}`
+          );
+
+          setLoading(false); // Terminar carga
+        } else {
+          console.error("Error al cargar los datos del Arduino:", this.status);
+          alert(
+            "No se pudieron cargar los datos del Arduino. Verifica la conexión."
+          );
+        }
       }
     };
-    xhttp.open("GET", url, true);
+    xhttp.open("GET", `${IP}/getFotoperiodos`, true);
     xhttp.send();
   };
 
+  // useEffect para cargar el estado inicial y actualizar la hora y la temperatura
   useEffect(() => {
+    loadInitialState();
+
     const updateCurrentTime = () => {
       const date = new Date();
       const options = {
@@ -100,6 +153,18 @@ const Grow = () => {
     };
   }, []);
 
+  // Mostrar el loading mientras se carga el estado inicial
+  if (loading) {
+    return (
+      <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col justify-center items-center">
+        <ActivityIndicator size="large" color="#ffffff" />
+        <Text className="text-2xl text-white font-psemibold mt-4">
+          Cargando...
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col">
       <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
@@ -110,58 +175,72 @@ const Grow = () => {
         Temperatura Actual: {currentTemperature}°C
       </Text>
 
-      <View className="flex flex-row bg-white p-5 rounded-lg justify-between mt-5">
-        <Text className="text-2xl text-black font-psemibold">Ventilación</Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch}
-          value={isEnabled}
-        />
-      </View>
-
-      <View className="flex flex-row bg-white p-5 rounded-lg justify-between mt-5">
-        <Text className="text-2xl text-black font-psemibold">Ventilación</Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch2}
-          value={isEnabled2}
-        />
-      </View>
-
-      {/* Inputs para horarios y fotoperiodo index */}
+      {/* Fotoperiodo 1 */}
       <View className="bg-white p-5 rounded-lg mt-5">
-        <Text className="text-xl text-black font-psemibold">
-          Fotoperiodo Index:
+        <Text className="text-2xl text-black font-psemibold">
+          Fotoperiodo 1
         </Text>
+        <View className="flex flex-row justify-between items-center mt-4">
+          <Text className="text-xl text-black font-psemibold">Ventilación</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isEnabled1 ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch1}
+            value={isEnabled1}
+          />
+        </View>
         <TextInput
-          placeholder="Ej: 1"
-          value={fotoperiodoIndex}
-          onChangeText={setFotoperiodoIndex}
-          className="bg-gray-200 p-2 rounded mt-2"
+          placeholder="Hora de Encendido (HH:MM)"
+          value={horaEncendido1}
+          onChangeText={setHoraEncendido1}
+          className="bg-gray-200 p-2 rounded mt-4"
         />
-        <Text className="text-xl text-black font-psemibold mt-4">
-          Hora de Encendido:
+        <TextInput
+          placeholder="Hora de Apagado (HH:MM)"
+          value={horaApagado1}
+          onChangeText={setHoraApagado1}
+          className="bg-gray-200 p-2 rounded mt-4"
+        />
+        <Button
+          title="Guardar"
+          onPress={() => saveFotoperiodo(0, horaEncendido1, horaApagado1)}
+          className="mt-4"
+        />
+      </View>
+
+      {/* Fotoperiodo 2 */}
+      <View className="bg-white p-5 rounded-lg mt-5">
+        <Text className="text-2xl text-black font-psemibold">
+          Fotoperiodo 2
         </Text>
+        <View className="flex flex-row justify-between items-center mt-4">
+          <Text className="text-xl text-black font-psemibold">Ventilación</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch2}
+            value={isEnabled2}
+          />
+        </View>
         <TextInput
-          placeholder="HH:MM"
-          value={horaEncendido}
-          onChangeText={setHoraEncendido}
-          className="bg-gray-200 p-2 rounded mt-2"
+          placeholder="Hora de Encendido (HH:MM)"
+          value={horaEncendido2}
+          onChangeText={setHoraEncendido2}
+          className="bg-gray-200 p-2 rounded mt-4"
         />
-        <Text className="text-xl text-black font-psemibold mt-4">
-          Hora de Apagado:
-        </Text>
         <TextInput
-          placeholder="HH:MM"
-          value={horaApagado}
-          onChangeText={setHoraApagado}
-          className="bg-gray-200 p-2 rounded mt-2"
+          placeholder="Hora de Apagado (HH:MM)"
+          value={horaApagado2}
+          onChangeText={setHoraApagado2}
+          className="bg-gray-200 p-2 rounded mt-4"
         />
-        <Button title="Guardar" onPress={saveFotoperiodo} className="mt-4" />
+        <Button
+          title="Guardar"
+          onPress={() => saveFotoperiodo(1, horaEncendido2, horaApagado2)}
+          className="mt-4"
+        />
       </View>
     </SafeAreaView>
   );
