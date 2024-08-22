@@ -1,12 +1,11 @@
 import { Text, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Grow = () => {
   const [isEnabled, setIsEnabled] = useState(false);
-
   const [IP, setIP] = useState("http://192.168.0.110");
+  const [currentTime, setCurrentTime] = useState("");
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -24,6 +23,33 @@ const Grow = () => {
     xhttp.send();
   };
 
+  const readTemperature = () => {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        console.log("Reading temperature");
+      }
+    };
+
+    xhttp.open("GET", `${IP}/temperature`, true);
+    xhttp.send();
+  };
+
+  useEffect(() => {
+    const updateCurrentTime = () => {
+      const date = new Date();
+      const gmt3Time = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000 - 3 * 3600000
+      );
+      setCurrentTime(gmt3Time.toLocaleTimeString());
+    };
+
+    const intervalId = setInterval(updateCurrentTime, 1000);
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
+
   return (
     <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col">
       <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
@@ -38,6 +64,10 @@ const Grow = () => {
           value={isEnabled}
         />
       </View>
+
+      <Text className="text-2xl text-white font-psemibold mt-4">
+        Hora Actual: {currentTime}
+      </Text>
     </SafeAreaView>
   );
 };
