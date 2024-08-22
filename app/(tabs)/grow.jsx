@@ -16,7 +16,11 @@ const Grow = () => {
   const [currentTime, setCurrentTime] = useState("");
   const [currentTemperature, setCurrentTemperature] = useState("");
 
-  // Estado para los horarios de los fotoperiodos
+  // Estados para los nombres de los fotoperiodos
+  const [nombreFotoperiodo1, setNombreFotoperiodo1] = useState("Fotoperiodo 1");
+  const [nombreFotoperiodo2, setNombreFotoperiodo2] = useState("Fotoperiodo 2");
+
+  // Estados para los horarios de los fotoperiodos
   const [horaEncendido1, setHoraEncendido1] = useState("");
   const [horaApagado1, setHoraApagado1] = useState("");
   const [horaEncendido2, setHoraEncendido2] = useState("");
@@ -67,6 +71,22 @@ const Grow = () => {
     xhttp.send();
   };
 
+  // Función para guardar el nombre del fotoperiodo
+  const saveFotoperiodoName = (index, nombre) => {
+    const url = `${IP}/setFotoperiodoName?index=${index}&nombre=${encodeURIComponent(
+      nombre
+    )}`;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        console.log(`Nombre de Fotoperiodo ${index} actualizado a ${nombre}`);
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  };
+
   // Función para leer la temperatura actual
   const readTemperature = () => {
     var xhttp = new XMLHttpRequest();
@@ -86,9 +106,10 @@ const Grow = () => {
       if (this.readyState === 4) {
         if (this.status === 200) {
           const response = JSON.parse(this.responseText);
-          console.log("Response from Arduino:", response); // Log para verificar el JSON
+          console.log("Response from Arduino:", response);
 
-          // Cargar datos para Fotoperiodo 1
+          // Cargar nombres y estados de los Fotoperiodos
+          setNombreFotoperiodo1(response.fotoperiodo1.nombre);
           setIsEnabled1(
             response.fotoperiodo1.estado === 1 ||
               response.fotoperiodo1.estado === "true"
@@ -100,7 +121,7 @@ const Grow = () => {
             `${response.fotoperiodo1.horaApagado}:${response.fotoperiodo1.minutoApagado}`
           );
 
-          // Cargar datos para Fotoperiodo 2
+          setNombreFotoperiodo2(response.fotoperiodo2.nombre);
           setIsEnabled2(
             response.fotoperiodo2.estado === 1 ||
               response.fotoperiodo2.estado === "true"
@@ -112,7 +133,7 @@ const Grow = () => {
             `${response.fotoperiodo2.horaApagado}:${response.fotoperiodo2.minutoApagado}`
           );
 
-          setLoading(false); // Terminar carga
+          setLoading(false);
         } else {
           console.error("Error al cargar los datos del Arduino:", this.status);
           alert(
@@ -125,7 +146,6 @@ const Grow = () => {
     xhttp.send();
   };
 
-  // useEffect para cargar el estado inicial y actualizar la hora y la temperatura
   useEffect(() => {
     loadInitialState();
 
@@ -153,7 +173,6 @@ const Grow = () => {
     };
   }, []);
 
-  // Mostrar el loading mientras se carga el estado inicial
   if (loading) {
     return (
       <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col justify-center items-center">
@@ -177,9 +196,13 @@ const Grow = () => {
 
       {/* Fotoperiodo 1 */}
       <View className="bg-white p-5 rounded-lg mt-5">
-        <Text className="text-2xl text-black font-psemibold">
-          Fotoperiodo 1
-        </Text>
+        <TextInput
+          placeholder="Nombre del Fotoperiodo 1"
+          value={nombreFotoperiodo1}
+          onChangeText={setNombreFotoperiodo1}
+          onEndEditing={() => saveFotoperiodoName(0, nombreFotoperiodo1)}
+          className="bg-gray-200 p-2 rounded mt-4"
+        />
         <View className="flex flex-row justify-between items-center mt-4">
           <Text className="text-xl text-black font-psemibold">Ventilación</Text>
           <Switch
@@ -211,9 +234,13 @@ const Grow = () => {
 
       {/* Fotoperiodo 2 */}
       <View className="bg-white p-5 rounded-lg mt-5">
-        <Text className="text-2xl text-black font-psemibold">
-          Fotoperiodo 2
-        </Text>
+        <TextInput
+          placeholder="Nombre del Fotoperiodo 2"
+          value={nombreFotoperiodo2}
+          onChangeText={setNombreFotoperiodo2}
+          onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
+          className="bg-gray-200 p-2 rounded mt-4"
+        />
         <View className="flex flex-row justify-between items-center mt-4">
           <Text className="text-xl text-black font-psemibold">Ventilación</Text>
           <Switch
