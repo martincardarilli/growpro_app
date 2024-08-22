@@ -1,4 +1,4 @@
-import { Text, Switch, View } from "react-native";
+import { Text, Switch, View, TextInput, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 
@@ -7,10 +7,13 @@ const Grow = () => {
   const [IP, setIP] = useState("http://192.168.0.110");
   const [currentTime, setCurrentTime] = useState("");
   const [currentTemperature, setCurrentTemperature] = useState("");
+  const [horaEncendido, setHoraEncendido] = useState("");
+  const [horaApagado, setHoraApagado] = useState("");
+  const [fotoperiodoIndex, setFotoperiodoIndex] = useState("");
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
-    setWind(!isEnabled); // Llama a tu función setWind aquí
+    setWind(!isEnabled);
   };
 
   const setWind = (boolean) => {
@@ -56,6 +59,22 @@ const Grow = () => {
     xhttp.send();
   };
 
+  const saveFotoperiodo = () => {
+    const [horaEnc, minEnc] = horaEncendido.split(":").map(Number);
+    const [horaApag, minApag] = horaApagado.split(":").map(Number);
+
+    const url = `${IP}/setFotoperiodo?index=${fotoperiodoIndex}&horaEncendido=${horaEnc}&minutoEncendido=${minEnc}&horaApagado=${horaApag}&minutoApagado=${minApag}`;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        console.log("Fotoperiodo updated");
+      }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  };
+
   useEffect(() => {
     const updateCurrentTime = () => {
       const date = new Date();
@@ -73,23 +92,20 @@ const Grow = () => {
     };
 
     const intervalId = setInterval(updateCurrentTime, 1000);
-
-    const temperatureIntervalId = setInterval(readTemperature, 5000); // Lee la temperatura cada 5 segundos
+    const temperatureIntervalId = setInterval(readTemperature, 5000);
 
     return () => {
       clearInterval(intervalId);
-      clearInterval(temperatureIntervalId); // Limpia el intervalo de temperatura
+      clearInterval(temperatureIntervalId);
     };
   }, []);
 
   return (
     <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col">
       <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
-
       <Text className="text-2xl text-white font-psemibold mt-4">
         Hora Actual: {currentTime}
       </Text>
-
       <Text className="text-2xl text-white font-psemibold mt-4">
         Temperatura Actual: {currentTemperature}°C
       </Text>
@@ -114,6 +130,38 @@ const Grow = () => {
           onValueChange={toggleSwitch2}
           value={isEnabled2}
         />
+      </View>
+
+      {/* Inputs para horarios y fotoperiodo index */}
+      <View className="bg-white p-5 rounded-lg mt-5">
+        <Text className="text-xl text-black font-psemibold">
+          Fotoperiodo Index:
+        </Text>
+        <TextInput
+          placeholder="Ej: 1"
+          value={fotoperiodoIndex}
+          onChangeText={setFotoperiodoIndex}
+          className="bg-gray-200 p-2 rounded mt-2"
+        />
+        <Text className="text-xl text-black font-psemibold mt-4">
+          Hora de Encendido:
+        </Text>
+        <TextInput
+          placeholder="HH:MM"
+          value={horaEncendido}
+          onChangeText={setHoraEncendido}
+          className="bg-gray-200 p-2 rounded mt-2"
+        />
+        <Text className="text-xl text-black font-psemibold mt-4">
+          Hora de Apagado:
+        </Text>
+        <TextInput
+          placeholder="HH:MM"
+          value={horaApagado}
+          onChangeText={setHoraApagado}
+          className="bg-gray-200 p-2 rounded mt-2"
+        />
+        <Button title="Guardar" onPress={saveFotoperiodo} className="mt-4" />
       </View>
     </SafeAreaView>
   );
