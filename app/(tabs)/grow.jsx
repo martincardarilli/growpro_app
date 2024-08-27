@@ -2,6 +2,7 @@ import {
   Text,
   Switch,
   View,
+  ScrollView,
   TextInput,
   Button,
   ActivityIndicator,
@@ -261,141 +262,143 @@ const Grow = () => {
   }
 
   return (
-    <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col">
-      <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
-      <Text className="text-2xl text-white font-psemibold mt-4">
-        Hora Actual: {currentTime}
-      </Text>
-      <Text className="text-2xl text-white font-psemibold mt-4">
-        Temperatura Actual: {currentTemperature}°C
-      </Text>
+    <SafeAreaView className="px-4 pt-6 bg-primary h-full flex flex-col">
+      <ScrollView>
+        <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
+        <Text className="text-2xl text-white font-psemibold mt-4">
+          Hora Actual: {currentTime}
+        </Text>
+        <Text className="text-2xl text-white font-psemibold mt-4">
+          Temperatura Actual: {currentTemperature}°C
+        </Text>
 
-      {/* Fotoperiodo 1 */}
-      <View className="bg-white p-5 rounded-lg">
-        <View className="flex flex-row justify-between items-center">
-          <Button title={modo1} onPress={toggleModo1} />
-          <TextInput
-            placeholder="Nombre del Switch 1"
-            value={nombreFotoperiodo1}
-            onChangeText={setNombreFotoperiodo1}
-            onEndEditing={() => saveFotoperiodoName(0, nombreFotoperiodo1)}
-            className="bg-gray-200 p-2 rounded flex-1"
-            style={{
-              backgroundColor: "white",
-              padding: 8,
-              borderRadius: 4,
-            }}
-          />
+        {/* Fotoperiodo 1 */}
+        <View className="bg-white p-5 rounded-lg">
+          <View className="flex flex-row justify-between items-center">
+            <Button title={modo1} onPress={toggleModo1} />
+            <TextInput
+              placeholder="Nombre del Switch 1"
+              value={nombreFotoperiodo1}
+              onChangeText={setNombreFotoperiodo1}
+              onEndEditing={() => saveFotoperiodoName(0, nombreFotoperiodo1)}
+              className="bg-gray-200 p-2 rounded flex-1"
+              style={{
+                backgroundColor: "white",
+                padding: 8,
+                borderRadius: 4,
+              }}
+            />
 
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isEnabled1 ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch1}
-            value={isEnabled1}
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={isEnabled1 ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch1}
+              value={isEnabled1}
+            />
+          </View>
+
+          {modo1 === "Fot." ? (
+            <>
+              <TextInput
+                placeholder="Hora de Encendido (HH:MM)"
+                value={horaEncendido1}
+                onChangeText={setHoraEncendido1}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+              <TextInput
+                placeholder="Hora de Apagado (HH:MM)"
+                value={horaApagado1}
+                onChangeText={setHoraApagado1}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+            </>
+          ) : (
+            <View className="bg-gray-200 p-2 rounded mt-4">
+              <Text>Seleccionar modo de viento:</Text>
+              <Picker
+                selectedValue={vientoModo1}
+                onValueChange={(itemValue, itemIndex) =>
+                  setVientoModo1(itemValue)
+                }
+              >
+                <Picker.Item label="Viento bajo" value="low" />
+                <Picker.Item label="Viento medio" value="medium" />
+                <Picker.Item label="Viento alto" value="high" />
+              </Picker>
+            </View>
+          )}
+          <Button
+            title="Guardar"
+            onPress={() => saveFotoperiodo(0, horaEncendido1, horaApagado1)}
+            className="mt-4"
           />
         </View>
 
-        {modo1 === "Fot." ? (
-          <>
+        {/* Fotoperiodo 2 */}
+        <View className="bg-white p-5 rounded-lg mt-5">
+          <View className="flex flex-row justify-between items-center">
+            <Button title={modo2} onPress={toggleModo2} />
+
             <TextInput
-              placeholder="Hora de Encendido (HH:MM)"
-              value={horaEncendido1}
-              onChangeText={setHoraEncendido1}
-              className="bg-gray-200 p-2 rounded mt-4"
+              placeholder="Nombre del Switch 2"
+              value={nombreFotoperiodo2}
+              onChangeText={setNombreFotoperiodo2}
+              onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
+              className="bg-gray-200 p-2 rounded flex-1"
+              style={{
+                backgroundColor: "white",
+                padding: 8,
+                borderRadius: 4,
+              }}
             />
-            <TextInput
-              placeholder="Hora de Apagado (HH:MM)"
-              value={horaApagado1}
-              onChangeText={setHoraApagado1}
-              className="bg-gray-200 p-2 rounded mt-4"
+
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch2}
+              value={isEnabled2}
             />
-          </>
-        ) : (
-          <View className="bg-gray-200 p-2 rounded mt-4">
-            <Text>Seleccionar modo de viento:</Text>
-            <Picker
-              selectedValue={vientoModo1}
-              onValueChange={(itemValue, itemIndex) =>
-                setVientoModo1(itemValue)
-              }
-            >
-              <Picker.Item label="Viento bajo" value="low" />
-              <Picker.Item label="Viento medio" value="medium" />
-              <Picker.Item label="Viento alto" value="high" />
-            </Picker>
           </View>
-        )}
-        <Button
-          title="Guardar"
-          onPress={() => saveFotoperiodo(0, horaEncendido1, horaApagado1)}
-          className="mt-4"
-        />
-      </View>
 
-      {/* Fotoperiodo 2 */}
-      <View className="bg-white p-5 rounded-lg mt-5">
-        <View className="flex flex-row justify-between items-center">
-          <Button title={modo2} onPress={toggleModo2} />
-
-          <TextInput
-            placeholder="Nombre del Switch 2"
-            value={nombreFotoperiodo2}
-            onChangeText={setNombreFotoperiodo2}
-            onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
-            className="bg-gray-200 p-2 rounded flex-1"
-            style={{
-              backgroundColor: "white",
-              padding: 8,
-              borderRadius: 4,
-            }}
-          />
-
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch2}
-            value={isEnabled2}
+          {modo2 === "Fot." ? (
+            <>
+              <TextInput
+                placeholder="Hora de Encendido (HH:MM)"
+                value={horaEncendido2}
+                onChangeText={setHoraEncendido2}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+              <TextInput
+                placeholder="Hora de Apagado (HH:MM)"
+                value={horaApagado2}
+                onChangeText={setHoraApagado2}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+            </>
+          ) : (
+            <View className="bg-gray-200 p-2 rounded mt-4">
+              <Text>Seleccionar modo de viento:</Text>
+              <Picker
+                selectedValue={vientoModo2}
+                onValueChange={(itemValue, itemIndex) =>
+                  setVientoModo2(itemValue)
+                }
+              >
+                <Picker.Item label="Viento bajo" value="low" />
+                <Picker.Item label="Viento medio" value="medium" />
+                <Picker.Item label="Viento alto" value="high" />
+              </Picker>
+            </View>
+          )}
+          <Button
+            title="Guardar"
+            onPress={() => saveFotoperiodo(1, horaEncendido2, horaApagado2)}
+            className="mt-4"
           />
         </View>
-
-        {modo2 === "Fot." ? (
-          <>
-            <TextInput
-              placeholder="Hora de Encendido (HH:MM)"
-              value={horaEncendido2}
-              onChangeText={setHoraEncendido2}
-              className="bg-gray-200 p-2 rounded mt-4"
-            />
-            <TextInput
-              placeholder="Hora de Apagado (HH:MM)"
-              value={horaApagado2}
-              onChangeText={setHoraApagado2}
-              className="bg-gray-200 p-2 rounded mt-4"
-            />
-          </>
-        ) : (
-          <View className="bg-gray-200 p-2 rounded mt-4">
-            <Text>Seleccionar modo de viento:</Text>
-            <Picker
-              selectedValue={vientoModo2}
-              onValueChange={(itemValue, itemIndex) =>
-                setVientoModo2(itemValue)
-              }
-            >
-              <Picker.Item label="Viento bajo" value="low" />
-              <Picker.Item label="Viento medio" value="medium" />
-              <Picker.Item label="Viento alto" value="high" />
-            </Picker>
-          </View>
-        )}
-        <Button
-          title="Guardar"
-          onPress={() => saveFotoperiodo(1, horaEncendido2, horaApagado2)}
-          className="mt-4"
-        />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
