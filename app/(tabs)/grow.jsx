@@ -9,6 +9,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 
+import { Picker } from "@react-native-picker/picker";
+
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
@@ -26,6 +28,20 @@ const Grow = () => {
   const [horaEncendido2, setHoraEncendido2] = useState("");
   const [horaApagado2, setHoraApagado2] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Estados para controlar el modo y el viento
+  const [modo1, setModo1] = useState("Fot.");
+  const [modo2, setModo2] = useState("Fot.");
+  const [vientoModo1, setVientoModo1] = useState("low");
+  const [vientoModo2, setVientoModo2] = useState("low");
+
+  const toggleModo1 = () => {
+    setModo1((prevModo) => (prevModo === "Fot." ? "Vie." : "Fot."));
+  };
+
+  const toggleModo2 = () => {
+    setModo2((prevModo) => (prevModo === "Fot." ? "Vie." : "Fot."));
+  };
 
   // Funciones para manejar los toggles
   const toggleSwitch1 = () => {
@@ -102,6 +118,63 @@ const Grow = () => {
 
   const loadInitialState = () => {
     var xhttp = new XMLHttpRequest();
+
+    // Establecer un timeout de 5 segundos (5000 ms)
+    xhttp.timeout = 5000;
+
+    let errorHandled = false; // Variable para evitar mostrar múltiples errores
+
+    const handleRequestError = () => {
+      if (!errorHandled) {
+        console.error(
+          "Error al cargar los datos del Arduino o timeout alcanzado."
+        );
+        errorHandled = true;
+
+        // Usar datos simulados si la solicitud falla
+        const simulatedResponse = {
+          fotoperiodo1: {
+            nombre: "Fotoperiodo 1",
+            estado: 1,
+            horaEncendido: 6,
+            minutoEncendido: 0,
+            horaApagado: 18,
+            minutoApagado: 0,
+          },
+          fotoperiodo2: {
+            nombre: "Fotoperiodo 2",
+            estado: 0,
+            horaEncendido: 7,
+            minutoEncendido: 0,
+            horaApagado: 19,
+            minutoApagado: 0,
+          },
+        };
+
+        console.log("Using simulated response:", simulatedResponse);
+
+        setNombreFotoperiodo1(simulatedResponse.fotoperiodo1.nombre);
+        setIsEnabled1(simulatedResponse.fotoperiodo1.estado === 1);
+        setHoraEncendido1(
+          `${simulatedResponse.fotoperiodo1.horaEncendido}:${simulatedResponse.fotoperiodo1.minutoEncendido}`
+        );
+        setHoraApagado1(
+          `${simulatedResponse.fotoperiodo1.horaApagado}:${simulatedResponse.fotoperiodo1.minutoApagado}`
+        );
+
+        setNombreFotoperiodo2(simulatedResponse.fotoperiodo2.nombre);
+        setIsEnabled2(simulatedResponse.fotoperiodo2.estado === 1);
+        setHoraEncendido2(
+          `${simulatedResponse.fotoperiodo2.horaEncendido}:${simulatedResponse.fotoperiodo2.minutoEncendido}`
+        );
+        setHoraApagado2(
+          `${simulatedResponse.fotoperiodo2.horaApagado}:${simulatedResponse.fotoperiodo2.minutoApagado}`
+        );
+
+        setLoading(false);
+      }
+    };
+
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4) {
         if (this.status === 200) {
@@ -135,13 +208,16 @@ const Grow = () => {
 
           setLoading(false);
         } else {
-          console.error("Error al cargar los datos del Arduino:", this.status);
-          alert(
-            "No se pudieron cargar los datos del Arduino. Verifica la conexión."
-          );
+          handleRequestError();
         }
       }
     };
+
+    // Manejo de errores por timeout
+    xhttp.ontimeout = function () {
+      handleRequestError();
+    };
+
     xhttp.open("GET", `${IP}/getFotoperiodos`, true);
     xhttp.send();
   };
@@ -195,16 +271,22 @@ const Grow = () => {
       </Text>
 
       {/* Fotoperiodo 1 */}
-      <View className="bg-white p-5 rounded-lg mt-5">
-        <TextInput
-          placeholder="Nombre del Fotoperiodo 1"
-          value={nombreFotoperiodo1}
-          onChangeText={setNombreFotoperiodo1}
-          onEndEditing={() => saveFotoperiodoName(0, nombreFotoperiodo1)}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
-        <View className="flex flex-row justify-between items-center mt-4">
-          <Text className="text-xl text-black font-psemibold">Ventilación</Text>
+      <View className="bg-white p-5 rounded-lg">
+        <View className="flex flex-row justify-between items-center">
+          <Button title={modo1} onPress={toggleModo1} />
+          <TextInput
+            placeholder="Nombre del Switch 1"
+            value={nombreFotoperiodo1}
+            onChangeText={setNombreFotoperiodo1}
+            onEndEditing={() => saveFotoperiodoName(0, nombreFotoperiodo1)}
+            className="bg-gray-200 p-2 rounded flex-1"
+            style={{
+              backgroundColor: "white",
+              padding: 8,
+              borderRadius: 4,
+            }}
+          />
+
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={isEnabled1 ? "#f5dd4b" : "#f4f3f4"}
@@ -213,18 +295,37 @@ const Grow = () => {
             value={isEnabled1}
           />
         </View>
-        <TextInput
-          placeholder="Hora de Encendido (HH:MM)"
-          value={horaEncendido1}
-          onChangeText={setHoraEncendido1}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
-        <TextInput
-          placeholder="Hora de Apagado (HH:MM)"
-          value={horaApagado1}
-          onChangeText={setHoraApagado1}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
+
+        {modo1 === "Fot." ? (
+          <>
+            <TextInput
+              placeholder="Hora de Encendido (HH:MM)"
+              value={horaEncendido1}
+              onChangeText={setHoraEncendido1}
+              className="bg-gray-200 p-2 rounded mt-4"
+            />
+            <TextInput
+              placeholder="Hora de Apagado (HH:MM)"
+              value={horaApagado1}
+              onChangeText={setHoraApagado1}
+              className="bg-gray-200 p-2 rounded mt-4"
+            />
+          </>
+        ) : (
+          <View className="bg-gray-200 p-2 rounded mt-4">
+            <Text>Seleccionar modo de viento:</Text>
+            <Picker
+              selectedValue={vientoModo1}
+              onValueChange={(itemValue, itemIndex) =>
+                setVientoModo1(itemValue)
+              }
+            >
+              <Picker.Item label="Viento bajo" value="low" />
+              <Picker.Item label="Viento medio" value="medium" />
+              <Picker.Item label="Viento alto" value="high" />
+            </Picker>
+          </View>
+        )}
         <Button
           title="Guardar"
           onPress={() => saveFotoperiodo(0, horaEncendido1, horaApagado1)}
@@ -234,15 +335,22 @@ const Grow = () => {
 
       {/* Fotoperiodo 2 */}
       <View className="bg-white p-5 rounded-lg mt-5">
-        <TextInput
-          placeholder="Nombre del Fotoperiodo 2"
-          value={nombreFotoperiodo2}
-          onChangeText={setNombreFotoperiodo2}
-          onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
-        <View className="flex flex-row justify-between items-center mt-4">
-          <Text className="text-xl text-black font-psemibold">Ventilación</Text>
+        <View className="flex flex-row justify-between items-center">
+          <Button title={modo2} onPress={toggleModo2} />
+
+          <TextInput
+            placeholder="Nombre del Switch 2"
+            value={nombreFotoperiodo2}
+            onChangeText={setNombreFotoperiodo2}
+            onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
+            className="bg-gray-200 p-2 rounded flex-1"
+            style={{
+              backgroundColor: "white",
+              padding: 8,
+              borderRadius: 4,
+            }}
+          />
+
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
@@ -251,18 +359,37 @@ const Grow = () => {
             value={isEnabled2}
           />
         </View>
-        <TextInput
-          placeholder="Hora de Encendido (HH:MM)"
-          value={horaEncendido2}
-          onChangeText={setHoraEncendido2}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
-        <TextInput
-          placeholder="Hora de Apagado (HH:MM)"
-          value={horaApagado2}
-          onChangeText={setHoraApagado2}
-          className="bg-gray-200 p-2 rounded mt-4"
-        />
+
+        {modo2 === "Fot." ? (
+          <>
+            <TextInput
+              placeholder="Hora de Encendido (HH:MM)"
+              value={horaEncendido2}
+              onChangeText={setHoraEncendido2}
+              className="bg-gray-200 p-2 rounded mt-4"
+            />
+            <TextInput
+              placeholder="Hora de Apagado (HH:MM)"
+              value={horaApagado2}
+              onChangeText={setHoraApagado2}
+              className="bg-gray-200 p-2 rounded mt-4"
+            />
+          </>
+        ) : (
+          <View className="bg-gray-200 p-2 rounded mt-4">
+            <Text>Seleccionar modo de viento:</Text>
+            <Picker
+              selectedValue={vientoModo2}
+              onValueChange={(itemValue, itemIndex) =>
+                setVientoModo2(itemValue)
+              }
+            >
+              <Picker.Item label="Viento bajo" value="low" />
+              <Picker.Item label="Viento medio" value="medium" />
+              <Picker.Item label="Viento alto" value="high" />
+            </Picker>
+          </View>
+        )}
         <Button
           title="Guardar"
           onPress={() => saveFotoperiodo(1, horaEncendido2, horaApagado2)}
