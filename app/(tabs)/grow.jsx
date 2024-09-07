@@ -12,6 +12,8 @@ import { useState, useEffect } from "react";
 
 import { Picker } from "@react-native-picker/picker";
 
+import Chart from "../../components/Chart";
+
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
@@ -271,6 +273,8 @@ const Grow = () => {
         <Text className="text-2xl text-white font-psemibold mt-4">
           Temperatura Actual: {currentTemperature}°C
         </Text>
+
+        <Chart />
 
         {/* Fotoperiodo 1 */}
         <View className="bg-white p-5 rounded-lg">
