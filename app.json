@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "sora",
+    "name": "growpro",
     "slug": "sora",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,8 @@
     "scheme": "sora",
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.grow.pro"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +28,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": ["expo-router", "expo-font"],
-    "sdkVersion": "51.0.0"
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "566659d5-142f-460d-a5ef-4229b65c4905"
+      }
+    }
   }
 }
