@@ -14,6 +14,8 @@ import { Picker } from "@react-native-picker/picker";
 
 import Chart from "../../components/Chart";
 
+import Chart2 from "../../components/Chart2";
+
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
@@ -275,6 +277,7 @@ const Grow = () => {
         </Text>
 
         <Chart />
+        <Chart2 />
 
         {/* Fotoperiodo 1 */}
         <View className="bg-white p-5 rounded-lg">
