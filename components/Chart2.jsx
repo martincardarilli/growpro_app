@@ -7,7 +7,7 @@ echarts.use([SVGRenderer]);
 const E_WIDTH = Dimensions.get("window").width;
 const E_HEIGHT = 400;
 
-const EChartComponent = () => {
+const Chart2 = () => {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -30,4 +30,4 @@ const EChartComponent = () => {
   return <View ref={chartRef} style={{ width: E_WIDTH, height: E_HEIGHT }} />;
 };
 
-export default EChartComponent;
+export default Chart2;
