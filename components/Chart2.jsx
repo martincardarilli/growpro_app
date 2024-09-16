@@ -1,33 +1,44 @@
 import React, { useRef, useEffect } from "react";
-import { View, Dimensions } from "react-native";
-import { echarts, SVGRenderer } from "@wuba/react-native-echarts";
+import { SvgChart } from "@wuba/react-native-echarts";
+import * as echarts from "echarts/core";
 
-echarts.use([SVGRenderer]);
+const option = {
+  title: {
+    text: "ECharts Example",
+  },
+  tooltip: {
+    trigger: "axis",
+  },
+  xAxis: {
+    type: "category",
+    data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  },
+  yAxis: {
+    type: "value",
+  },
+  series: [
+    {
+      data: [120, 200, 150, 80, 70, 110, 130],
+      type: "bar",
+    },
+  ],
+};
 
-const E_WIDTH = Dimensions.get("window").width;
-const E_HEIGHT = 400;
-
-const Chart2 = () => {
+export default function Chart2() {
   const chartRef = useRef(null);
 
   useEffect(() => {
-    const option = {
-      xAxis: { type: "category", data: ["A", "B", "C"] },
-      yAxis: { type: "value" },
-      series: [{ data: [820, 932, 901], type: "line" }],
-    };
-
-    const chart = echarts.init(chartRef.current, "light", {
-      renderer: "svg",
-      width: E_WIDTH,
-      height: E_HEIGHT,
-    });
-    chart.setOption(option);
-
-    return () => chart.dispose();
+    let chart;
+    if (chartRef.current) {
+      chart = echarts.init(chartRef.current, "light", {
+        renderer: "svg",
+        width: 300,
+        height: 300,
+      });
+      chart.setOption(option);
+    }
+    return () => chart?.dispose();
   }, []);
 
-  return <View ref={chartRef} style={{ width: E_WIDTH, height: E_HEIGHT }} />;
-};
-
-export default Chart2;
+  return <SvgChart ref={chartRef} />;
+}

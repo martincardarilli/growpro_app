@@ -1,103 +1,40 @@
-import { useState } from "react";
-import { ResizeMode, Video } from "expo-av";
-import * as Animatable from "react-native-animatable";
-import {
-  FlatList,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-} from "react-native";
-
-import { icons } from "../constants";
-
-const zoomIn = {
-  0: {
-    scale: 0.9,
-  },
-  1: {
-    scale: 1,
-  },
-};
-
-const zoomOut = {
-  0: {
-    scale: 1,
-  },
-  1: {
-    scale: 0.9,
-  },
-};
-
-const TrendingItem = ({ activeItem, item }) => {
-  const [play, setPlay] = useState(false);
-
-  return (
-    <Animatable.View
-      className="mr-5"
-      animation={activeItem === item.$id ? zoomIn : zoomOut}
-      duration={500}
-    >
-      {play ? (
-        <Video
-          source={{ uri: item.video }}
-          className="w-52 h-72 rounded-[33px] mt-3 bg-white/10"
-          resizeMode={ResizeMode.CONTAIN}
-          useNativeControls
-          shouldPlay
-          onPlaybackStatusUpdate={(status) => {
-            if (status.didJustFinish) {
-              setPlay(false);
-            }
-          }}
-        />
-      ) : (
-        <TouchableOpacity
-          className="relative flex justify-center items-center"
-          activeOpacity={0.7}
-          onPress={() => setPlay(true)}
-        >
-          <ImageBackground
-            source={{
-              uri: item.thumbnail,
-            }}
-            className="w-52 h-72 rounded-[33px] my-5 overflow-hidden shadow-lg shadow-black/40"
-            resizeMode="cover"
-          />
-
-          <Image
-            source={icons.play}
-            className="w-12 h-12 absolute"
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      )}
-    </Animatable.View>
-  );
-};
+import { useCallback, useState } from "react";
+import { FlatList, View, Text } from "react-native";
 
 const Trending = ({ posts }) => {
-  const [activeItem, setActiveItem] = useState(posts[0]);
+  const [activeItem, setActiveItem] = useState(posts[0]?.$id); // Initialize with the first post's $id
 
-  const viewableItemsChanged = ({ viewableItems }) => {
+  const viewableItemsChanged = useCallback(({ viewableItems }) => {
     if (viewableItems.length > 0) {
-      setActiveItem(viewableItems[0].key);
+      setActiveItem(viewableItems[0].key); // Update active item
     }
-  };
+  }, []);
 
   return (
     <FlatList
-      data={posts}
-      horizontal
-      keyExtractor={(item) => item.$id}
+      data={posts} // Array of posts passed as props
+      horizontal // FlatList is horizontal
+      keyExtractor={(item) => item.$id} // Extract $id as the unique key
       renderItem={({ item }) => (
-        <TrendingItem activeItem={activeItem} item={item} />
+        <TrendingItem activeItem={activeItem} item={item} /> // Render TrendingItem component
       )}
-      onViewableItemsChanged={viewableItemsChanged}
+      onViewableItemsChanged={viewableItemsChanged} // Callback when viewable items change
       viewabilityConfig={{
-        itemVisiblePercentThreshold: 70,
+        itemVisiblePercentThreshold: 70, // Threshold to consider an item visible
       }}
-      contentOffset={{ x: 170 }}
+      contentOffset={{ x: 170 }} // Initial offset to scroll 170 pixels horizontally
     />
+  );
+};
+
+const TrendingItem = ({ activeItem, item }) => {
+  // Assuming TrendingItem is a simple component rendering post data
+  return (
+    <View>
+      {/* Render different styles or content based on whether this item is active */}
+      <Text>{activeItem === item.$id ? "Active" : "Inactive"}</Text>
+      {/* Display thumbnail or other details */}
+    </View>
   );
 };
 

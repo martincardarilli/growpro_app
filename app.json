@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "jsc",
     "name": "growpro",
     "slug": "sora",
     "version": "1.0.0",

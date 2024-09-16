@@ -17,22 +17,22 @@ const data = {
     "12 AM",
     "3 AM",
     "6 AM",
-  ], // Datos extra para mostrar el scroll
+  ],
   datasets: [
     {
       data: [15, 14.5, 13.5, 17, 23, 27.5, 25, 20, 18, 22, 30],
-      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // Color opcional
-      strokeWidth: 2, // Grosor de la línea
+      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
+      strokeWidth: 2,
     },
     {
       data: [12, 12, 12, 14, 18, 22, 20, 16, 19, 25, 29],
-      color: (opacity = 1) => `rgba(0, 255, 0, ${opacity})`, // Color opcional
-      strokeWidth: 2, // Grosor de la línea
+      color: (opacity = 1) => `rgba(0, 255, 0, ${opacity})`,
+      strokeWidth: 2,
     },
     {
       data: [18, 17, 15, 20, 28, 33, 30, 24, 21, 29, 35],
-      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // Color opcional
-      strokeWidth: 2, // Grosor de la línea
+      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+      strokeWidth: 2,
     },
   ],
 };
@@ -43,25 +43,22 @@ const chartConfig = {
   backgroundGradientTo: "#08130D",
   backgroundGradientToOpacity: 0.5,
   color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-  strokeWidth: 2, // Grosor de la línea
+  strokeWidth: 2,
   barPercentage: 0.5,
 };
 
-export default function App() {
+export default function Chart() {
   return (
     <View style={{ flex: 1 }}>
       <Text style={{ fontSize: 18, textAlign: "center", marginVertical: 10 }}>
         Line Chart Example
       </Text>
-
-      {/* Habilitamos el ScrollView horizontal */}
       <ScrollView horizontal={true}>
         <View style={{ width: screenWidth * 2 }}>
-          {/* Duplicamos el ancho para permitir el scroll horizontal */}
           <LineChart
             data={data}
-            width={screenWidth * 1.8} // Ajustamos el ancho del gráfico para que sea desplazable
-            height={300} // Altura del gráfico
+            width={screenWidth * 1.8}
+            height={300}
             chartConfig={chartConfig}
             bezier
             style={{
