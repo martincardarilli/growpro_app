@@ -7,6 +7,9 @@ import { images } from "../constants";
 import { CustomButton, Loader } from "../components";
 import { useGlobalContext } from "../context/GlobalProvider";
 
+import "intl";
+import "intl/locale-data/jsonp/en"; // Use the preferred locale
+
 const Welcome = () => {
   const { loading, isLogged } = useGlobalContext();
 

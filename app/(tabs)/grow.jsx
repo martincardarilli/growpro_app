@@ -237,7 +237,6 @@ const Grow = () => {
         minute: "2-digit",
         second: "2-digit",
         hour12: false,
-        timeZone: "America/Argentina/Buenos_Aires",
       };
       const argentinaTime = new Intl.DateTimeFormat("es-AR", options).format(
         date

@@ -1,0 +1,11 @@
+eas build --profile development-simulator --platform ios
+eas build --profile development --platform android
+
+npx react-native run-android???? este nose si era
+
+expo start --dev-client este si era
+
+ESTE ERA
+npx expo start --dev-client
+npx expo start --dev-client --port 19000
+
