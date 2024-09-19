@@ -65,6 +65,20 @@ export default function Chart() {
               marginVertical: 8,
               borderRadius: 16,
             }}
+            yAxisColor="#0BA5A4"
+            showVerticalLines
+            verticalLinesColor="black"
+            initialSpacing={0}
+            spacing={30}
+            textColor1="yellow"
+            textShiftY={-8}
+            textShiftX={-10}
+            textFontSize={13}
+            thickness={5}
+            hideRules
+            hideYAxisText
+            xAxisColor="#0BA5A4"
+            color="#0BA5A4"
           />
         </View>
       </ScrollView>

@@ -275,7 +275,7 @@ const Grow = () => {
           Temperatura Actual: {currentTemperature}°C
         </Text>
 
-        <Chart />
+        {/* <Chart /> */}
         <Chart2 />
 
         {/* Fotoperiodo 1 */}
