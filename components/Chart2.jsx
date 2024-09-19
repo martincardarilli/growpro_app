@@ -76,57 +76,8 @@ const SimpleLineChart = () => {
         lineGradient
         highlightedRange={{
           from: 5,
-          to: 12,
+          to: 18,
           color: "green",
-        }}
-        pointerConfig={{
-          pointerStripHeight: 160,
-          pointerStripColor: "lightgray",
-          pointerStripWidth: 2,
-          pointerColor: "lightgray",
-          radius: 6,
-          pointerLabelWidth: 100,
-          pointerLabelHeight: 90,
-          activatePointersOnLongPress: true,
-          persistPointer: true,
-          autoAdjustPointerLabelPosition: false,
-          pointerLabelComponent: (items) => {
-            return (
-              <View
-                style={{
-                  height: 90,
-                  width: 100,
-                  justifyContent: "center",
-                  marginTop: -30,
-                  marginLeft: -40,
-                }}
-              >
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 14,
-                    marginBottom: 6,
-                    textAlign: "center",
-                  }}
-                >
-                  {items[0].date}
-                </Text>
-
-                <View
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 6,
-                    borderRadius: 16,
-                    backgroundColor: "white",
-                  }}
-                >
-                  <Text style={{ fontWeight: "bold", textAlign: "center" }}>
-                    {"$" + items[0].value + ".0"}
-                  </Text>
-                </View>
-              </View>
-            );
-          },
         }}
       />
     </View>

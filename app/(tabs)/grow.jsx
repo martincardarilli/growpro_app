@@ -125,7 +125,7 @@ const Grow = () => {
     var xhttp = new XMLHttpRequest();
 
     // Establecer un timeout de 5 segundos (5000 ms)
-    xhttp.timeout = 5000;
+    xhttp.timeout = 1000;
 
     let errorHandled = false; // Variable para evitar mostrar múltiples errores
 
