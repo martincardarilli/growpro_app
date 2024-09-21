@@ -19,7 +19,7 @@ import Chart2 from "../../components/Chart2";
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
-  const [IP, setIP] = useState("http://192.168.0.110");
+  const [IP, setIP] = useState("http://192.168.0.108");
   const [currentTime, setCurrentTime] = useState("");
   const [currentTemperature, setCurrentTemperature] = useState("");
 

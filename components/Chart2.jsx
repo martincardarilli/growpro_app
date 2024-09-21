@@ -12,7 +12,7 @@ const SimpleLineChart = () => {
           backgroundColor: "white",
           borderWidth: 4,
           borderRadius: 10,
-          borderColor: "#07BAD1",
+          borderColor: "green",
         }}
       />
     );
@@ -66,18 +66,66 @@ const SimpleLineChart = () => {
     <View style={styles.container}>
       <LineChart
         data={data}
-        thickness={2}
-        color={"#FF9800"} // Comienza con un color naranja
-        gradientColor={"#4CAF50"} // Transiciona al color verde
+        thickness={5}
+        textFontSize={15}
+        textShiftY={-8}
+        color={"blue"} // Comienza con un color naranja
         curved
-        hideRules
-        adjustToWidth
         maxValue={40} // Asegura que el gráfico tenga espacio para los valores más altos
         lineGradient
         highlightedRange={{
           from: 5,
-          to: 18,
-          color: "green",
+          to: 20,
+          color: "blue",
+        }}
+        pointerConfig={{
+          pointerStripHeight: 160,
+          pointerStripColor: "lightgray",
+          pointerStripWidth: 2,
+          pointerColor: "lightgray",
+          radius: 6,
+          pointerLabelWidth: 100,
+          pointerLabelHeight: 90,
+          activatePointersOnLongPress: true,
+          persistPointer: true,
+          autoAdjustPointerLabelPosition: false,
+          pointerLabelComponent: (items) => {
+            return (
+              <View
+                style={{
+                  height: 90,
+                  width: 100,
+                  justifyContent: "center",
+                  marginTop: -30,
+                  marginLeft: -40,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 14,
+                    marginBottom: 6,
+                    textAlign: "center",
+                  }}
+                >
+                  {items[0].date}
+                </Text>
+
+                <View
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    backgroundColor: "lightgray",
+                  }}
+                >
+                  <Text style={{ fontWeight: "bold", textAlign: "center" }}>
+                    {"$" + items[0].value + ".0"}
+                  </Text>
+                </View>
+              </View>
+            );
+          },
         }}
       />
     </View>
@@ -89,7 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "white",
   },
 });
 
