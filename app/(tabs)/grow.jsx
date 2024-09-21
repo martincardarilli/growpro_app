@@ -279,7 +279,7 @@ const Grow = () => {
         <Chart2 />
 
         {/* Fotoperiodo 1 */}
-        <View className="bg-white p-5 rounded-lg">
+        <View className="bg-white p-5 rounded-lg mt-5">
           <View className="flex flex-row justify-between items-center">
             <Button title={modo1} onPress={toggleModo1} />
             <TextInput
