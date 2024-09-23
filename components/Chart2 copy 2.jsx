@@ -142,7 +142,7 @@ const SimpleLineChart = () => {
   return (
     <View style={styles.container} className=" rounded-lg">
       {/* Agrega un Slider para controlar el spacing */}
-      <Text>Zoom: {spacing}%</Text>
+      <Text>Spacing: {spacing}</Text>
       <Slider
         style={{ width: 200, height: 40 }}
         minimumValue={10}
@@ -162,13 +162,9 @@ const SimpleLineChart = () => {
         height={400}
         showVerticalLines
         verticalLinesStrokeDashArray={5}
-        verticalLinesSpacing={spacing > 90 ? spacing * 0.25 : spacing}
-        noOfVerticalLines={spacing > 90 ? dataMax.length * 4 : dataMax.length}
-        verticalLinesShift={-spacing + 17}
+        verticalLinesSpacing={spacing}
+        verticalLinesShift={-12}
         curved
-        color={"#238B45"}
-        dataPointsColor={"#005A32"}
-        //#005A32
         // Linea
         thickness={5}
         // Puntos
