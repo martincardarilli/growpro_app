@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { LinearGradient, Stop } from "react-native-svg";
@@ -26,7 +26,8 @@ const SimpleLineChart = () => {
       </View>
     );
   };
-  const dataMax = [
+
+  const [dataMax, setDataMax] = useState([
     { value: 5, dataPointText: "1" },
     {
       value: 24,
@@ -61,7 +62,7 @@ const SimpleLineChart = () => {
     { value: 20, dataPointText: "10" },
     { value: 20, dataPointText: "11" },
     { value: 20, dataPointText: "12" },
-  ];
+  ]);
 
   const dataProm = [
     { value: 5, dataPointText: "1" },
@@ -138,6 +139,25 @@ const SimpleLineChart = () => {
   ];
 
   const [spacing, setSpacing] = useState(30); // Estado para controlar el valor de spacing
+
+  // Función para generar un número aleatorio entre min y max
+  const generateRandomValue = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  // Simula la llegada de nuevos datos aleatorios cada 2 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newValue = generateRandomValue(5, 40); // Valores entre 5 y 40
+      setDataMax((prevData) => [
+        ...prevData,
+        { value: newValue, dataPointText: `${prevData.length + 1}` },
+      ]);
+    }, 2000); // Cambia a un valor más pequeño si quieres más rapidez
+
+    // Limpia el intervalo al desmontar el componente
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container} className=" rounded-lg">
@@ -216,6 +236,7 @@ const SimpleLineChart = () => {
         // Para scrollear hasta la derecha on Load - Ver: https://github.com/Abhinandan-Kushwaha/react-native-gifted-charts/blob/master/docs/LineChart/LineChartProps.md
         //scrollToIndex
         //showScrollIndicator
+        //scrollToEnd SOLO TRUE LA PRIMERA VEZ QUE SE RENDERIZA
         scrollToEnd
         // Puntero on scroll horizontal
         pointerConfig={{
