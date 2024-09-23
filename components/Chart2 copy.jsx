@@ -33,7 +33,7 @@ const SimpleLineChart = () => {
       customDataPoint: customDataPoint,
       showStrip: true,
       stripHeight: 190,
-      stripColor: "",
+      stripColor: "black",
       dataPointLabelComponent: () => {
         return (
           <View
@@ -137,25 +137,22 @@ const SimpleLineChart = () => {
   ];
 
   return (
-    <View style={styles.container} className=" rounded-lg">
+    <View style={styles.container} className="p-5 rounded-lg">
       <LineChart
-        // Style
-        height={400}
-        showVerticalLines
-        curved
         // Datos
         data={dataMax}
         data2={dataProm}
         data3={dataMin}
         // Linea
+        curved
         thickness={5}
         // Puntos
         textShiftY={-8}
         textFontSize={15}
         // Eje X
-        spacing={30}
+        //spacing={10}
         // Eje Y
-        noOfSections={8}
+        noOfSections={4}
         maxValue={40} // Asegura que el gráfico tenga espacio para los valores más altos
         // Color abajo de la linea
         /* startFillColor={"rgb(84,219,234)"}
@@ -164,37 +161,24 @@ const SimpleLineChart = () => {
         endOpacity={0}
         areaChart */
         // Gradiente en la linea
-        /* lineGradient
+        lineGradient
         lineGradientId="ggrd" // same as the id passed in <LinearGradient> below
         lineGradientComponent={() => {
           return (
             <LinearGradient id="ggrd" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={"blue"} />
-              <Stop offset="0.5" stopColor={"orange"} />
-              <Stop offset="1" stopColor={"green"} />
+              <Stop
+                lineGradientStartColor={30}
+                lineGradientEndColor={100}
+                stopColor={"red"}
+              />
+              <Stop />
+              <Stop stopColor={"blue"} />
             </LinearGradient>
           );
-        }} */
-        highlightedRange={{
-          from: 20,
-          to: 30,
-          color: "green",
-          thickness: 5,
         }}
-        highlightedRange2={{
-          from: 30,
-          to: 40,
-          color: "red",
-          thickness: 5,
-        }}
-        // Focus Puntero
         focusEnabled
         showStripOnFocus
         showTextOnFocus
-        // Para scrollear hasta la derecha on Load - Ver: https://github.com/Abhinandan-Kushwaha/react-native-gifted-charts/blob/master/docs/LineChart/LineChartProps.md
-        //scrollToIndex
-        //showScrollIndicator
-        scrollToEnd
         // Puntero on scroll horizontal
         pointerConfig={{
           pointerStripHeight: 160,
