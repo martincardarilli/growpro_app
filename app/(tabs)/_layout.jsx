@@ -46,21 +46,6 @@ const TabLayout = () => {
         }}
       >
         <Tabs.Screen
-          name="grow"
-          options={{
-            title: "Grow",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.eye}
-                color={color}
-                name="Grow"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="home"
           options={{
             title: "Home",
@@ -69,22 +54,7 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
-                name="Home"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="bookmark"
-          options={{
-            title: "Bookmark",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.bookmark}
-                color={color}
-                name="Bookmark"
+                name="Social"
                 focused={focused}
               />
             ),
@@ -100,12 +70,44 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.plus}
                 color={color}
-                name="Create"
+                name="Post"
                 focused={focused}
               />
             ),
           }}
         />
+        <Tabs.Screen
+          name="grow"
+          options={{
+            title: "Grow",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.eye}
+                color={color}
+                name="Grow"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="automatizaciones"
+          options={{
+            title: "Automatiza",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.bookmark}
+                color={color}
+                name="Automate"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
         <Tabs.Screen
           name="profile"
           options={{

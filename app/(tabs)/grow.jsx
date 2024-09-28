@@ -19,7 +19,12 @@ import Chart2 from "../../components/Chart2";
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
-  const [IP, setIP] = useState("http://192.168.100.73");
+
+  // En mi casa es de 192.168.100.X
+  //const [IP, setIP] = useState("http://192.168.100.73");
+
+  // En lo de lohse es 192.168.0.X
+  const [IP, setIP] = useState("http://192.168.0.107");
   const [currentTime, setCurrentTime] = useState("");
 
   // Estados para los nombres de los fotoperiodos

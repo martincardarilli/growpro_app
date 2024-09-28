@@ -7,7 +7,11 @@ import Slider from "@react-native-community/slider"; // Si tu proyecto usa una v
 import ChartHistory from "./ChartHistory";
 
 const SimpleLineChart = () => {
-  const [IP, setIP] = useState("http://192.168.100.73");
+  // En mi casa es de 192.168.100.X
+  //const [IP, setIP] = useState("http://192.168.100.73");
+
+  // En lo de lohse es 192.168.0.X
+  const [IP, setIP] = useState("http://192.168.0.107");
 
   const [currentTemperature, setCurrentTemperature] = useState("");
 
@@ -191,6 +195,7 @@ const SimpleLineChart = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
+            // justifyContent: "center",
           }}
           className=" rounded-lg"
         >
