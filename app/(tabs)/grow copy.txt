@@ -21,6 +21,7 @@ const Grow = () => {
   const [isEnabled2, setIsEnabled2] = useState(false);
   const [IP, setIP] = useState("http://192.168.100.73");
   const [currentTime, setCurrentTime] = useState("");
+  const [currentTemperature, setCurrentTemperature] = useState("");
 
   // Estados para los nombres de los fotoperiodos
   const [nombreFotoperiodo1, setNombreFotoperiodo1] = useState("Fotoperiodo 1");
@@ -36,6 +37,8 @@ const Grow = () => {
   // Estados para controlar el modo y el viento
   const [modo1, setModo1] = useState("Fot.");
   const [modo2, setModo2] = useState("Fot.");
+  const [vientoModo1, setVientoModo1] = useState("low");
+  const [vientoModo2, setVientoModo2] = useState("low");
 
   const toggleModo1 = () => {
     setModo1((prevModo) => (prevModo === "Fot." ? "Vie." : "Fot."));
@@ -102,6 +105,19 @@ const Grow = () => {
       }
     };
     xhttp.open("GET", url, true);
+    xhttp.send();
+  };
+
+  // Función para leer la temperatura actual
+  const readTemperature = () => {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        setCurrentTemperature(this.responseText);
+        console.log("Temperature updated: " + this.responseText);
+      }
+    };
+    xhttp.open("GET", `${IP}/temperature`, true);
     xhttp.send();
   };
 
@@ -229,9 +245,11 @@ const Grow = () => {
     };
 
     const intervalId = setInterval(updateCurrentTime, 1000);
+    const temperatureIntervalId = setInterval(readTemperature, 5000);
 
     return () => {
       clearInterval(intervalId);
+      clearInterval(temperatureIntervalId);
     };
   }, []);
 
@@ -250,6 +268,12 @@ const Grow = () => {
     <SafeAreaView className="px-4 pt-6 bg-primary h-full flex flex-col">
       <ScrollView>
         <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
+        <Text className="text-2xl text-white font-psemibold mt-4">
+          Hora Actual: {currentTime}
+        </Text>
+        <Text className="text-2xl text-white font-psemibold mt-4">
+          Temperatura Actual: {currentTemperature}°C
+        </Text>
 
         {/* <Chart /> */}
         <Chart2 />
@@ -279,6 +303,42 @@ const Grow = () => {
               value={isEnabled1}
             />
           </View>
+
+          {modo1 === "Fot." ? (
+            <>
+              <TextInput
+                placeholder="Hora de Encendido (HH:MM)"
+                value={horaEncendido1}
+                onChangeText={setHoraEncendido1}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+              <TextInput
+                placeholder="Hora de Apagado (HH:MM)"
+                value={horaApagado1}
+                onChangeText={setHoraApagado1}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+            </>
+          ) : (
+            <View className="bg-gray-200 p-2 rounded mt-4">
+              <Text>Seleccionar modo de viento:</Text>
+              <Picker
+                selectedValue={vientoModo1}
+                onValueChange={(itemValue, itemIndex) =>
+                  setVientoModo1(itemValue)
+                }
+              >
+                <Picker.Item label="Viento bajo" value="low" />
+                <Picker.Item label="Viento medio" value="medium" />
+                <Picker.Item label="Viento alto" value="high" />
+              </Picker>
+            </View>
+          )}
+          <Button
+            title="Guardar"
+            onPress={() => saveFotoperiodo(0, horaEncendido1, horaApagado1)}
+            className="mt-4"
+          />
         </View>
 
         {/* Fotoperiodo 2 */}
@@ -307,62 +367,42 @@ const Grow = () => {
               value={isEnabled2}
             />
           </View>
-        </View>
 
-        {/* Fotoperiodo 2 */}
-        <View className="bg-white p-5 rounded-lg mt-5">
-          <View className="flex flex-row justify-between items-center">
-            <Button title={modo2} onPress={toggleModo2} />
-
-            <TextInput
-              placeholder="Nombre del Switch 2"
-              value={nombreFotoperiodo2}
-              onChangeText={setNombreFotoperiodo2}
-              onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
-              className="bg-gray-200 p-2 rounded flex-1"
-              style={{
-                backgroundColor: "white",
-                padding: 8,
-                borderRadius: 4,
-              }}
-            />
-
-            <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch2}
-              value={isEnabled2}
-            />
-          </View>
-        </View>
-
-        {/* Fotoperiodo 2 */}
-        <View className="bg-white p-5 rounded-lg mt-5">
-          <View className="flex flex-row justify-between items-center">
-            <Button title={modo2} onPress={toggleModo2} />
-
-            <TextInput
-              placeholder="Nombre del Switch 2"
-              value={nombreFotoperiodo2}
-              onChangeText={setNombreFotoperiodo2}
-              onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
-              className="bg-gray-200 p-2 rounded flex-1"
-              style={{
-                backgroundColor: "white",
-                padding: 8,
-                borderRadius: 4,
-              }}
-            />
-
-            <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch2}
-              value={isEnabled2}
-            />
-          </View>
+          {modo2 === "Fot." ? (
+            <>
+              <TextInput
+                placeholder="Hora de Encendido (HH:MM)"
+                value={horaEncendido2}
+                onChangeText={setHoraEncendido2}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+              <TextInput
+                placeholder="Hora de Apagado (HH:MM)"
+                value={horaApagado2}
+                onChangeText={setHoraApagado2}
+                className="bg-gray-200 p-2 rounded mt-4"
+              />
+            </>
+          ) : (
+            <View className="bg-gray-200 p-2 rounded mt-4">
+              <Text>Seleccionar modo de viento:</Text>
+              <Picker
+                selectedValue={vientoModo2}
+                onValueChange={(itemValue, itemIndex) =>
+                  setVientoModo2(itemValue)
+                }
+              >
+                <Picker.Item label="Viento bajo" value="low" />
+                <Picker.Item label="Viento medio" value="medium" />
+                <Picker.Item label="Viento alto" value="high" />
+              </Picker>
+            </View>
+          )}
+          <Button
+            title="Guardar"
+            onPress={() => saveFotoperiodo(1, horaEncendido2, horaApagado2)}
+            className="mt-4"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
