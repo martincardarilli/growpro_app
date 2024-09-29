@@ -8,10 +8,10 @@ import ChartHistory from "./ChartHistory";
 
 const SimpleLineChart = () => {
   // En mi casa es de 192.168.100.X
-  //const [IP, setIP] = useState("http://192.168.100.73");
+  const [IP, setIP] = useState("http://192.168.100.76");
 
   // En lo de lohse es 192.168.0.X
-  const [IP, setIP] = useState("http://192.168.0.107");
+  //const [IP, setIP] = useState("http://192.168.0.108");
 
   const [currentTemperature, setCurrentTemperature] = useState("");
 

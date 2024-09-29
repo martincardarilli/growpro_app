@@ -12,19 +12,19 @@ import { useState, useEffect } from "react";
 
 import { Picker } from "@react-native-picker/picker";
 
-import Chart from "../../components/Chart";
-
 import Chart2 from "../../components/Chart2";
 
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
+  const [isEnabled3, setIsEnabled3] = useState(false);
+  const [isEnabled4, setIsEnabled4] = useState(false);
 
   // En mi casa es de 192.168.100.X
-  //const [IP, setIP] = useState("http://192.168.100.73");
+  const [IP, setIP] = useState("http://192.168.100.76");
 
   // En lo de lohse es 192.168.0.X
-  const [IP, setIP] = useState("http://192.168.0.107");
+  //const [IP, setIP] = useState("http://192.168.0.108");
   const [currentTime, setCurrentTime] = useState("");
 
   // Estados para los nombres de los fotoperiodos
@@ -37,10 +37,6 @@ const Grow = () => {
   const [horaEncendido2, setHoraEncendido2] = useState("");
   const [horaApagado2, setHoraApagado2] = useState("");
   const [loading, setLoading] = useState(true);
-
-  // Estados para controlar el modo y el viento
-  const [modo1, setModo1] = useState("Fot.");
-  const [modo2, setModo2] = useState("Fot.");
 
   const toggleModo1 = () => {
     setModo1((prevModo) => (prevModo === "Fot." ? "Vie." : "Fot."));
@@ -59,6 +55,17 @@ const Grow = () => {
   const toggleSwitch2 = () => {
     setIsEnabled2((previousState) => !previousState);
     setWind(1, !isEnabled2);
+  };
+
+  // Funciones para manejar los toggles
+  const toggleSwitch3 = () => {
+    setIsEnabled3((previousState) => !previousState);
+    setWind(2, !isEnabled3);
+  };
+
+  const toggleSwitch4 = () => {
+    setIsEnabled4((previousState) => !previousState);
+    setWind(3, !isEnabled4);
   };
 
   // Función para enviar el estado del viento al servidor
@@ -262,7 +269,6 @@ const Grow = () => {
         {/* Fotoperiodo 1 */}
         <View className="bg-white p-5 rounded-lg mt-5">
           <View className="flex flex-row justify-between items-center">
-            <Button title={modo1} onPress={toggleModo1} />
             <TextInput
               placeholder="Nombre del Switch 1"
               value={nombreFotoperiodo1}
@@ -289,8 +295,6 @@ const Grow = () => {
         {/* Fotoperiodo 2 */}
         <View className="bg-white p-5 rounded-lg mt-5">
           <View className="flex flex-row justify-between items-center">
-            <Button title={modo2} onPress={toggleModo2} />
-
             <TextInput
               placeholder="Nombre del Switch 2"
               value={nombreFotoperiodo2}
@@ -317,13 +321,8 @@ const Grow = () => {
         {/* Fotoperiodo 2 */}
         <View className="bg-white p-5 rounded-lg mt-5">
           <View className="flex flex-row justify-between items-center">
-            <Button title={modo2} onPress={toggleModo2} />
-
             <TextInput
               placeholder="Nombre del Switch 2"
-              value={nombreFotoperiodo2}
-              onChangeText={setNombreFotoperiodo2}
-              onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
               className="bg-gray-200 p-2 rounded flex-1"
               style={{
                 backgroundColor: "white",
@@ -334,10 +333,10 @@ const Grow = () => {
 
             <Switch
               trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
+              thumbColor={isEnabled3 ? "#f5dd4b" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch2}
-              value={isEnabled2}
+              onValueChange={toggleSwitch3}
+              value={isEnabled3}
             />
           </View>
         </View>
@@ -345,13 +344,8 @@ const Grow = () => {
         {/* Fotoperiodo 2 */}
         <View className="bg-white p-5 rounded-lg mt-5">
           <View className="flex flex-row justify-between items-center">
-            <Button title={modo2} onPress={toggleModo2} />
-
             <TextInput
               placeholder="Nombre del Switch 2"
-              value={nombreFotoperiodo2}
-              onChangeText={setNombreFotoperiodo2}
-              onEndEditing={() => saveFotoperiodoName(1, nombreFotoperiodo2)}
               className="bg-gray-200 p-2 rounded flex-1"
               style={{
                 backgroundColor: "white",
@@ -362,10 +356,10 @@ const Grow = () => {
 
             <Switch
               trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled2 ? "#f5dd4b" : "#f4f3f4"}
+              thumbColor={isEnabled4 ? "#f5dd4b" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch2}
-              value={isEnabled2}
+              onValueChange={toggleSwitch4}
+              value={isEnabled4}
             />
           </View>
         </View>

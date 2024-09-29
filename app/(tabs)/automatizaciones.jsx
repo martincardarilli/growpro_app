@@ -5,13 +5,14 @@ import { FlatList, Image, RefreshControl, Text, View } from "react-native";
 import useAppwrite from "../../lib/useAppwrite";
 import { getAllAutomatizaciones } from "../../lib/appwrite";
 
+import FormAutomatizacion from "../../components/automatizaciones/FormAutomatizacion";
 // const { user } = useGlobalContext();
 
+// Automatizaciones Component
 const Automatizaciones = () => {
   const { data: automatizaciones, refetch } = useAppwrite(
     getAllAutomatizaciones
   );
-
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -31,7 +32,7 @@ const Automatizaciones = () => {
         renderItem={({ item }) => (
           <View className="p-4">
             <Text className="text-white">
-              {item.title || "Automatización sin título"}
+              {item.titulo || "Automatización sin título"}
             </Text>
           </View>
         )}
@@ -44,6 +45,9 @@ const Automatizaciones = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
+
+      {/* Render the CreateAutomatizacion component */}
+      <FormAutomatizacion />
     </SafeAreaView>
   );
 };
