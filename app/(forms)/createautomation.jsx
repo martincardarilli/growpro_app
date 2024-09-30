@@ -9,14 +9,13 @@ import {
   Alert,
 } from "react-native";
 
-import useAppwrite from "../../lib/useAppwrite";
 import { getAllAutomatizaciones, postAutomatizacion } from "../../lib/appwrite";
-import { CustomButton, FormField } from ".."; // Assuming this path is correct
+import { CustomButton, FormField } from "../../components"; // Assuming this path is correct
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { router } from "expo-router";
 
 // CreateAutomatizacion Component
-const FormAutomatizacion = () => {
+const CreateAutomation = () => {
   const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -38,7 +37,7 @@ const FormAutomatizacion = () => {
       });
 
       Alert.alert("Success", "Automatization created successfully");
-      router.push("/home");
+      router.push("/automatizaciones");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
@@ -51,8 +50,8 @@ const FormAutomatizacion = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
-      <ScrollView className="px-4 my-6">
+    <SafeAreaView className="px-4 pt-6 bg-primary h-full">
+      <ScrollView>
         <Text className="text-2xl text-white font-semibold">
           Create Automatization
         </Text>
@@ -84,4 +83,4 @@ const FormAutomatizacion = () => {
   );
 };
 
-export default FormAutomatizacion;
+export default CreateAutomation;

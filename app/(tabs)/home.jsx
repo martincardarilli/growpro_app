@@ -1,13 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  FlatList,
-  Image,
-  RefreshControl,
-  Text,
-  View,
-  Switch,
-} from "react-native";
+import { FlatList, Image, RefreshControl, Text, View } from "react-native";
 
 import { images } from "../../constants";
 import useAppwrite from "../../lib/useAppwrite";
@@ -18,25 +11,17 @@ const Home = () => {
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
 
+  useEffect(() => {
+    console.log("Fetched posts:");
+    console.log(posts);
+  }, [posts]);
+
+  useEffect(() => {
+    console.log("Fetched latestPosts:");
+    console.log(latestPosts);
+  }, [latestPosts]);
+
   const [refreshing, setRefreshing] = useState(false);
-
-  const [isEnabled, setIsEnabled] = useState(false);
-
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
-    setWind(!isEnabled); // Llama a tu función setWind aquí
-  };
-
-  const setWind = (boolean) => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        console.log("Wind updated " + boolean);
-      }
-    };
-    xhttp.open("GET", "http://192.168.0.107/setviento?onoff=" + boolean, true);
-    xhttp.send();
-  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -51,7 +36,7 @@ const Home = () => {
   //  we cannot do that with just scrollview as there's both horizontal and vertical scroll (two flat lists, within trending)
 
   return (
-    <SafeAreaView className="bg-primary">
+    <SafeAreaView className="bg-primary h-full">
       <FlatList
         data={posts}
         keyExtractor={(item) => item.$id}
@@ -91,14 +76,6 @@ const Home = () => {
               <Text className="text-lg font-pregular text-gray-100 mb-3">
                 Latest Videos
               </Text>
-
-              <Switch
-                trackColor={{ false: "#767577", true: "#81b0ff" }}
-                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={toggleSwitch}
-                value={isEnabled}
-              />
 
               <Trending posts={latestPosts ?? []} />
             </View>
