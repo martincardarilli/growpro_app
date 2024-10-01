@@ -1,6 +1,9 @@
 eas build --profile development-simulator --platform ios
 eas build --profile development --platform android
 
+eas build --platform ios --profile development
+
+
 npx react-native run-android???? este nose si era
 
 expo start --dev-client este si era
