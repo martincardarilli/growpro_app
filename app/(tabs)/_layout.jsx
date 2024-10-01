@@ -62,15 +62,15 @@ const TabLayout = () => {
         />
 
         <Tabs.Screen
-          name="create"
+          name="devices"
           options={{
-            title: "Create",
+            title: "Devices",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.plus}
+                icon={icons.upload}
                 color={color}
-                name="Post"
+                name="Devices"
                 focused={focused}
               />
             ),

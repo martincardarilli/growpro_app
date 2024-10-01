@@ -46,7 +46,11 @@ const RootLayout = () => {
         <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
 
         <Stack.Screen
-          name="(forms)/createautomation"
+          name="(forms)/newautomation"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(forms)/newdevice"
           options={{ headerShown: false }}
         />
       </Stack>
