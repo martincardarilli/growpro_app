@@ -5,6 +5,7 @@ import {
   Text,
   View,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { NetworkInfo } from "react-native-network-info";
 
@@ -27,7 +28,7 @@ const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
   });
 };
 
-const ScanNetwork = ({ knownDevices }) => {
+const ScanNetwork = ({ knownDevices, refreshing, onRefreshLocalScan }) => {
   const [localIp, setLocalIp] = useState(null);
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +41,12 @@ const ScanNetwork = ({ knownDevices }) => {
     });
   }, []);
 
+  // Función de escaneo de la red local
   const scanLocalNetwork = async (localIp) => {
+    // Limpiamos los dispositivos antes de hacer un nuevo escaneo
+    setDevices([]);
+    setIsLoading(true);
+
     const ipParts = localIp.split(".");
     const baseIp = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}`;
     let devicesFound = [];
@@ -67,6 +73,15 @@ const ScanNetwork = ({ knownDevices }) => {
 
     setDevices(devicesFound);
     setIsLoading(false);
+  };
+
+  // Función para gestionar el refresco (se llama desde el pull-to-refresh)
+  const handleLocalRefresh = async () => {
+    const ip = await NetworkInfo.getIPAddress();
+    setLocalIp(ip);
+    console.log("Local IP Refresh:", ip);
+    await scanLocalNetwork(ip); // Se vuelve a escanear la red local
+    onRefreshLocalScan(); // Refresca también los dispositivos conocidos desde la base de datos
   };
 
   const isKnownDevice = (deviceMAC) => {
@@ -103,7 +118,8 @@ const ScanNetwork = ({ knownDevices }) => {
     ...missingDevices.map((device) => ({ ...device, found: false })), // Marcamos los dispositivos no encontrados
   ];
 
-  if (isLoading) {
+  // Mostrar el indicador de carga solo si no estamos haciendo "pull-to-refresh"
+  if (isLoading && !refreshing) {
     return (
       <SafeAreaView className="bg-primary flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#ffffff" />
@@ -175,6 +191,12 @@ const ScanNetwork = ({ knownDevices }) => {
         ListEmptyComponent={() => (
           <Text className="text-white mt-2 text-center">No devices found.</Text>
         )}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleLocalRefresh}
+          />
+        }
       />
     </SafeAreaView>
   );
