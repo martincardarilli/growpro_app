@@ -21,7 +21,7 @@ const Grow = () => {
   const [isEnabled4, setIsEnabled4] = useState(false);
 
   // En mi casa es de 192.168.100.X
-  const [IP, setIP] = useState("http://192.168.100.76");
+  const [IP, setIP] = useState("http://192.168.0.111");
 
   // En lo de lohse es 192.168.0.X
   //const [IP, setIP] = useState("http://192.168.0.108");

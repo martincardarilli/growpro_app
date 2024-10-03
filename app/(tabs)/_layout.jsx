@@ -36,19 +36,20 @@ const TabLayout = () => {
         screenOptions={{
           tabBarActiveTintColor: "#FFA001",
           tabBarInactiveTintColor: "#CDCDE0",
-          tabBarShowLabel: true,
+          tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: "#161622",
             borderTopWidth: 1,
             borderTopColor: "#232533",
-            height: 84,
+            height: 90,
+            paddingTop: 10,
           },
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
-            title: "@",
+            title: "Home",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon

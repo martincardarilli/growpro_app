@@ -13,7 +13,7 @@ import { getAllDevices } from "../../lib/appwrite"; // Mock API call to get all 
 
 import ToFormButton from "../../components/devices/ToFormButton";
 
-// import ScanNetwork from "../../components/devices/ScanNetwork";
+import ScanNetwork from "../../components/devices/ScanNetwork";
 
 // DeviceList Component
 const DeviceList = () => {
@@ -58,43 +58,8 @@ const DeviceList = () => {
 
   return (
     <SafeAreaView className="bg-primary flex-1">
-      <FlatList
-        data={devices}
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <View className="p-4 bg-gray-800 mb-4 rounded-lg">
-            <Text className="text-white font-bold">
-              Model: {item.model || "Unknown Model"}
-            </Text>
-            <Text className="text-gray-400">
-              MAC Address: {item.MAC || "N/A"}
-            </Text>
-            <Text className="text-gray-400">Local IP Address: N/A</Text>
-            <Text className="text-gray-400">Server Address: N/A</Text>
-            <Text className="text-gray-400">
-              Sensors: {item.sensorCount || "No sensors"}
-            </Text>
-          </View>
-        )}
-        ListHeaderComponent={() => (
-          <View className="flex my-6 px-4 space-y-6">
-            <Text className="text-2xl text-white font-psemibold">Devices</Text>
-            <Text className="text-lg font-pregular text-gray-100 mb-3">
-              List of Devices with Sensors
-            </Text>
-          </View>
-        )}
-        ListEmptyComponent={() => (
-          <Text className="text-white mt-2 text-center">
-            No devices available.
-          </Text>
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
       <ToFormButton />
-      {/* <ScanNetwork /> */}
+      <ScanNetwork knownDevices={devices} />
     </SafeAreaView>
   );
 };

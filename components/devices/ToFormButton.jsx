@@ -26,7 +26,7 @@ const ToFormButton = () => {
         shadowRadius: 5,
         elevation: 5, // For Android shadow
       }}
-      onPress={() => router.push("/ScanNetwork")} // Navigates to the form screen
+      onPress={() => router.push("/newdevice")} // Navigates to the form screen
     >
       <Image
         source={icons.plus} // You can use a different icon if needed
