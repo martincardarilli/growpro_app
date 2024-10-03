@@ -97,6 +97,12 @@ const ScanNetwork = ({ knownDevices }) => {
     (knownDevice) => !foundMacAddresses.includes(knownDevice.MAC)
   );
 
+  // Combinar dispositivos encontrados con los no encontrados
+  const combinedDevices = [
+    ...devices.map((item) => ({ ...item, found: true })), // Marcamos los dispositivos encontrados
+    ...missingDevices.map((device) => ({ ...device, found: false })), // Marcamos los dispositivos no encontrados
+  ];
+
   if (isLoading) {
     return (
       <SafeAreaView className="bg-primary flex-1 justify-center items-center">
@@ -111,69 +117,65 @@ const ScanNetwork = ({ knownDevices }) => {
         IP Celular: {localIp}
       </Text>
       <FlatList
-        data={devices}
+        data={combinedDevices}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => {
-          const macAddress = parseDeviceResponse(item.response);
-          if (!macAddress) {
+          if (item.found) {
+            // Dispositivos encontrados en el escaneo
+            const macAddress = parseDeviceResponse(item.response);
+            if (!macAddress) {
+              return (
+                <View className="p-4 bg-red-800 mb-4 rounded-lg">
+                  <Text className="text-white">
+                    {item.ip} Respuesta no válida o mal formada: {item.response}
+                  </Text>
+                </View>
+              );
+            }
+
+            const knownDevice = isKnownDevice(macAddress);
+            const ipChanged = knownDevice && knownDevice.ip !== item.ip;
+
             return (
-              <View className="p-4 bg-red-800 mb-4 rounded-lg">
+              <View className="p-4 bg-gray-800 mb-4 rounded-lg">
+                <Text className="text-white font-bold">IP: {item.ip}</Text>
+                <Text className="text-white">Respuesta: {item.response}</Text>
+
+                <Text className="text-white">MAC: {macAddress}</Text>
                 <Text className="text-white">
-                  {item.ip} Respuesta no válida o mal formada: {item.response}
+                  {knownDevice
+                    ? "Dispositivo conocido"
+                    : "Dispositivo desconocido"}
                 </Text>
+                {knownDevice && (
+                  <Text className="text-white">
+                    {ipChanged
+                      ? "La IP local ha cambiado"
+                      : "La IP local es la misma"}
+                  </Text>
+                )}
+              </View>
+            );
+          } else {
+            // Dispositivos conocidos no encontrados
+            return (
+              <View key={item.MAC} className="p-4 bg-red-800 mb-4 rounded-lg">
+                <Text className="text-white font-bold">MAC: {item.MAC}</Text>
+                <Text className="text-white">
+                  Model: {item.model || "Unknown Model"}
+                </Text>
+                <Text className="text-white">
+                  Última IP conocida: {item.ip || "N/A"}
+                </Text>
+                <Text className="text-white">No se encontró en la red.</Text>
               </View>
             );
           }
-
-          const knownDevice = isKnownDevice(macAddress);
-          const ipChanged = knownDevice && knownDevice.ip !== item.ip;
-
-          return (
-            <View className="p-4 bg-gray-800 mb-4 rounded-lg">
-              <Text className="text-white font-bold">IP: {item.ip}</Text>
-              <Text className="text-white">Respuesta: {item.response}</Text>
-
-              <Text className="text-white">MAC: {macAddress}</Text>
-              <Text className="text-white">
-                {knownDevice
-                  ? "Dispositivo conocido"
-                  : "Dispositivo desconocido"}
-              </Text>
-              {knownDevice && (
-                <Text className="text-white">
-                  {ipChanged
-                    ? "La IP local ha cambiado"
-                    : "La IP local es la misma"}
-                </Text>
-              )}
-            </View>
-          );
         }}
         ListEmptyComponent={() => (
           <Text className="text-white mt-2 text-center">No devices found.</Text>
         )}
       />
-
-      {/* Mostrar los dispositivos conocidos que no fueron encontrados */}
-      {missingDevices.length > 0 && (
-        <View className="p-5">
-          <Text className="text-1xl text-white font-psemibold">
-            Dispositivos conocidos no encontrados:
-          </Text>
-          {missingDevices.map((device) => (
-            <View key={device.MAC} className="p-4 bg-red-800 mb-4 rounded-lg">
-              <Text className="text-white font-bold">MAC: {device.MAC}</Text>
-              <Text className="text-white">
-                Model: {device.model || "Unknown Model"}
-              </Text>
-              <Text className="text-white">
-                Última IP conocida: {device.ip || "N/A"}
-              </Text>
-              <Text className="text-white">No se encontró en la red.</Text>
-            </View>
-          ))}
-        </View>
-      )}
     </SafeAreaView>
   );
 };
