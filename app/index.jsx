@@ -25,17 +25,19 @@ const Welcome = () => {
         }}
       >
         <View className="w-full flex justify-center items-center h-full px-4">
-          <Image
+          {/* <Image
             source={images.logo}
             className="w-[130px] h-[84px]"
             resizeMode="contain"
           />
-
+           
           <Image
             source={images.cards}
             className="max-w-[380px] w-full h-[298px]"
             resizeMode="contain"
-          />
+          /> */}
+
+          <Text className="text-2xl text-white font-psemibold">GROWPRO</Text>
 
           <View className="relative mt-5">
             <Text className="text-3xl text-white font-bold text-center">

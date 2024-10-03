@@ -44,12 +44,19 @@ const ScanNetwork = () => {
   const scanLocalNetwork = async (localIp) => {
     // Obtener el rango de la IP local (ej: 192.168.100.x)
     const ipParts = localIp.split(".");
-    const baseIp = "192.168.100"; // Hardcodeado para la red específica
+
+    // Hardcodeado para la red específica
+    // En mi casa es de 192.168.100.X (192.168.100.76)
+    // En lo de lohse es 192.168.0.X (192.168.0.108)
+    //const baseIp = "192.168.100";
+
+    // Dinamico, reconoce cada area local incluso si es distinta
+    const baseIp = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}`;
     let devicesFound = [];
 
     // Crear promesas para escanear todas las IPs en el rango de la red local (de 1 a 254)
     const scanPromises = [];
-    for (let i = 70; i <= 254; i++) {
+    for (let i = 0; i <= 254; i++) {
       const testIp = `${baseIp}.${i}`;
       scanPromises.push(
         fetchWithTimeout(`http://${testIp}/status`, { method: "GET" }, 2000) // Timeout de 2 segundos
@@ -92,6 +99,9 @@ const ScanNetwork = () => {
 
   return (
     <SafeAreaView className="bg-primary flex-1">
+      <Text className="text-1xl p-5 text-white font-psemibold">
+        IP Celular: {localIp}
+      </Text>
       <FlatList
         data={devices}
         keyExtractor={(item, index) => index.toString()}

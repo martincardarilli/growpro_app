@@ -45,14 +45,14 @@ const RootLayout = () => {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
 
-        <Stack.Screen
+        {/* <Stack.Screen
           name="(forms)/newautomation"
           options={{ headerShown: false }}
         />
         <Stack.Screen
           name="(forms)/newdevice"
           options={{ headerShown: false }}
-        />
+        /> */}
       </Stack>
     </GlobalProvider>
   );

@@ -1,0 +1,22 @@
+tenemos
+
+
+Automaticazion
+
+tipo
+
+Fotoperiodo
+> Vista de reloj (como el sleep de iOS)
+> 18-6 a 12-12 progresivo x/dia
+Regulacion de parametros de T y H acorde a la etapa
+
+! Solo switchs y variable tiempo
+
+Timer
+Matriz
+
+! Solo switchs y variable tiempo
+
+Causa/Reaccion
+
+! Temperatura y switchs

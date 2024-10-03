@@ -13,7 +13,7 @@ import { getAllDevices } from "../../lib/appwrite"; // Mock API call to get all 
 
 import ToFormButton from "../../components/devices/ToFormButton";
 
-import ScanNetwork from "../../components/devices/ScanNetwork";
+// import ScanNetwork from "../../components/devices/ScanNetwork";
 
 // DeviceList Component
 const DeviceList = () => {
@@ -94,7 +94,7 @@ const DeviceList = () => {
         }
       />
       <ToFormButton />
-      <ScanNetwork />
+      {/* <ScanNetwork /> */}
     </SafeAreaView>
   );
 };

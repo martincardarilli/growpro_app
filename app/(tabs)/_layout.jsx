@@ -36,7 +36,7 @@ const TabLayout = () => {
         screenOptions={{
           tabBarActiveTintColor: "#FFA001",
           tabBarInactiveTintColor: "#CDCDE0",
-          tabBarShowLabel: false,
+          tabBarShowLabel: true,
           tabBarStyle: {
             backgroundColor: "#161622",
             borderTopWidth: 1,
@@ -48,7 +48,7 @@ const TabLayout = () => {
         <Tabs.Screen
           name="home"
           options={{
-            title: "Home",
+            title: "@",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
