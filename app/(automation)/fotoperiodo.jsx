@@ -7,6 +7,12 @@ import { CustomButton, FormField } from "../../components"; // Assuming this pat
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { router } from "expo-router";
 
+// Helper function to validate time format HH:MM
+const isValidTime = (time) => {
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Regex to match HH:MM format
+  return timeRegex.test(time);
+};
+
 // CreateAutomatizacion Component
 const CreateAutomation = () => {
   const { user } = useGlobalContext();
@@ -16,14 +22,30 @@ const CreateAutomation = () => {
     descripcion: "",
     horaEncendido: "",
     horaApagado: "",
+    tipoAutomatizacion: "Fotoperiodo", // Hardcodeado a "Fotoperiodo"
   });
 
   const submit = async () => {
-    const { titulo, descripcion, horaEncendido, horaApagado } = form;
+    const {
+      titulo,
+      descripcion,
+      horaEncendido,
+      horaApagado,
+      tipoAutomatizacion,
+    } = form;
 
+    // Validate that all fields are filled
     if (!titulo || !descripcion || !horaEncendido || !horaApagado) {
       return Alert.alert(
         "Please provide all fields: title, description, turn-on time, and turn-off time"
+      );
+    }
+
+    // Validate time format
+    if (!isValidTime(horaEncendido) || !isValidTime(horaApagado)) {
+      return Alert.alert(
+        "Invalid time format",
+        "Please enter time in HH:MM format (e.g., 08:30 or 19:45)."
       );
     }
 
@@ -34,6 +56,7 @@ const CreateAutomation = () => {
         descripcion,
         horaEncendido,
         horaApagado,
+        tipoAutomatizacion, // Incluyendo el tipo de automatización hardcodeado
         userId: user.$id, // Associating with the user if needed
       });
 
@@ -47,6 +70,7 @@ const CreateAutomation = () => {
         descripcion: "",
         horaEncendido: "",
         horaApagado: "",
+        tipoAutomatizacion: "Fotoperiodo", // Resetearlo a "Fotoperiodo"
       });
       setUploading(false);
     }
@@ -64,7 +88,7 @@ const CreateAutomation = () => {
           value={form.titulo}
           placeholder="Enter title..."
           handleChangeText={(e) => setForm({ ...form, titulo: e })}
-          otherStyles="mt-10"
+          otherStyles="mt-5"
         />
 
         <FormField
@@ -72,29 +96,29 @@ const CreateAutomation = () => {
           value={form.descripcion}
           placeholder="Enter description..."
           handleChangeText={(e) => setForm({ ...form, descripcion: e })}
-          otherStyles="mt-7"
+          otherStyles="mt-5"
         />
 
         <FormField
           title="Turn-on Time"
           value={form.horaEncendido}
-          placeholder="Enter turn-on time..."
+          placeholder="Enter turn-on time (HH:MM)..."
           handleChangeText={(e) => setForm({ ...form, horaEncendido: e })}
-          otherStyles="mt-7"
+          otherStyles="mt-5"
         />
 
         <FormField
           title="Turn-off Time"
           value={form.horaApagado}
-          placeholder="Enter turn-off time..."
+          placeholder="Enter turn-off time (HH:MM)..."
           handleChangeText={(e) => setForm({ ...form, horaApagado: e })}
-          otherStyles="mt-7"
+          otherStyles="mt-5"
         />
 
         <CustomButton
           title="Submit"
           handlePress={submit}
-          containerStyles="mt-7"
+          containerStyles="mt-5"
           isLoading={uploading}
         />
       </ScrollView>
