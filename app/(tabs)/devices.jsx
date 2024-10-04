@@ -92,8 +92,10 @@ const DeviceList = () => {
     const ip = await NetworkInfo.getIPAddress();
     setLocalIp(ip);
     console.log("Local IP Refresh:", ip);
+
+    await refetch(); // Refresca los dispositivos conocidos desde la base de datos
     await scanLocalNetwork(ip); // Se vuelve a escanear la red local
-    //await refetch(); // Refresca los dispositivos conocidos desde la base de datos
+
     setRefreshing(false);
   };
 
@@ -158,12 +160,19 @@ const DeviceList = () => {
         data={combinedDevices}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => {
+          // Aplicar opacidad a los ítems si está en estado de refresco
+          const itemStyle = {
+            opacity: refreshing ? 0.5 : 1, // Cambia la opacidad durante el pull-to-refresh
+          };
           if (item.found) {
             // Dispositivos encontrados en el escaneo
             const macAddress = parseDeviceResponse(item.response);
             if (!macAddress) {
               return (
-                <View className="p-4 bg-red-800 mb-4 rounded-lg">
+                <View
+                  className="p-4 bg-red-800 mb-4 rounded-lg"
+                  style={itemStyle}
+                >
                   <Text className="text-white">
                     {item.ip} Respuesta no válida o mal formada: {item.response}
                   </Text>
@@ -175,29 +184,38 @@ const DeviceList = () => {
             const ipChanged = knownDevice && knownDevice.ip !== item.ip;
 
             return (
-              <View className="p-4 bg-gray-800 mb-4 rounded-lg">
-                <Text className="text-white font-bold">IP: {item.ip}</Text>
-                <Text className="text-white">Respuesta: {item.response}</Text>
-
-                <Text className="text-white">MAC: {macAddress}</Text>
+              <View
+                className="p-4 bg-gray-800 mb-4 rounded-lg"
+                style={itemStyle}
+              >
                 <Text className="text-white">
                   {knownDevice
                     ? "Dispositivo conocido"
-                    : "Dispositivo desconocido"}
+                    : "(?) Dispositivo desconocido"}
                 </Text>
                 {knownDevice && (
                   <Text className="text-white">
                     {ipChanged
-                      ? "La IP local ha cambiado"
+                      ? "! La IP local ha cambiado"
                       : "La IP local es la misma"}
                   </Text>
                 )}
+                <Text className="text-white font-bold">IP: {item.ip}</Text>
+                <Text className="text-white mb-5">MAC: {macAddress}</Text>
+                <Text className="text-white" style={{ fontSize: 10 }}>
+                  Respuesta:{" "}
+                  {JSON.stringify(JSON.parse(item.response), null, 3)}
+                </Text>
               </View>
             );
           } else {
             // Dispositivos conocidos no encontrados
             return (
-              <View key={item.MAC} className="p-4 bg-red-800 mb-4 rounded-lg">
+              <View
+                key={item.MAC}
+                className="p-4 bg-red-800 mb-4 rounded-lg"
+                style={itemStyle}
+              >
                 <Text className="text-white font-bold">MAC: {item.MAC}</Text>
                 <Text className="text-white">
                   Model: {item.model || "Unknown Model"}
@@ -217,6 +235,7 @@ const DeviceList = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleLocalRefresh}
+            tintColor="#ffffff"
           />
         }
       />
