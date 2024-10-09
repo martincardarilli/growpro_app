@@ -18,21 +18,16 @@ const CreateAutomation = () => {
   const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
-    titulo: "",
-    descripcion: "",
-    horaEncendido: "",
-    horaApagado: "",
-    tipoAutomatizacion: "Fotoperiodo", // Hardcodeado a "Fotoperiodo"
+    titulo: "fastest",
+    descripcion: "fastest",
+    horaEncendido: "00:00",
+    horaApagado: "00:00",
+    config: "fotoperiodo", // Hardcodeado a "Fotoperiodo"
+    // falta el user id?
   });
 
   const submit = async () => {
-    const {
-      titulo,
-      descripcion,
-      horaEncendido,
-      horaApagado,
-      tipoAutomatizacion,
-    } = form;
+    const { titulo, descripcion, horaEncendido, horaApagado } = form;
 
     // Validate that all fields are filled
     if (!titulo || !descripcion || !horaEncendido || !horaApagado) {
@@ -54,9 +49,11 @@ const CreateAutomation = () => {
       await postAutomatizacion({
         titulo,
         descripcion,
-        horaEncendido,
-        horaApagado,
-        tipoAutomatizacion, // Incluyendo el tipo de automatización hardcodeado
+        config: {
+          tipo: "fotoperiodo",
+          horaEncendido: horaEncendido,
+          horaApagado: horaApagado,
+        },
         userId: user.$id, // Associating with the user if needed
       });
 
@@ -70,7 +67,6 @@ const CreateAutomation = () => {
         descripcion: "",
         horaEncendido: "",
         horaApagado: "",
-        tipoAutomatizacion: "Fotoperiodo", // Resetearlo a "Fotoperiodo"
       });
       setUploading(false);
     }

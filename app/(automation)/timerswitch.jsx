@@ -50,15 +50,12 @@ const SwitchMatrix = () => {
     return `${(index + 1) * 5}`; // Intervalos de 5 minutos
   };
 
-  // Función para formatear la matriz de schedule para enviar
+  // Función para formatear la matriz de schedule para enviar como cadena
   const formatScheduleForSubmission = () => {
-    return schedule.map((row, hour) => ({
-      hour,
-      intervals: row.map((active, interval) => ({
-        interval: getIntervalLabel(interval),
-        active,
-      })),
-    }));
+    return schedule
+      .flat()
+      .map((active) => (active ? "1" : "0"))
+      .join(""); // Convierte cada valor booleano en "1" o "0" y lo une en una cadena
   };
 
   // Función para manejar el envío del formulario
@@ -69,7 +66,10 @@ const SwitchMatrix = () => {
       await postAutomatizacion({
         titulo: "Timer Automation", // O cualquier otro título
         descripcion: "This is a timer-based automation",
-        schedule: formattedSchedule, // Aquí enviamos la matriz
+        config: {
+          tipo: "timer",
+          matriz: formattedSchedule,
+        },
         userId: user.$id,
       });
 

@@ -14,6 +14,10 @@ import { Picker } from "@react-native-picker/picker";
 
 import Chart2 from "../../components/Chart2";
 
+import useAppwrite from "../../lib/useAppwrite"; // Assuming useAppwrite is setup for fetching data
+
+import { getAllDevices } from "../../lib/appwrite"; // Import updateDevice function
+
 const Grow = () => {
   const [isEnabled1, setIsEnabled1] = useState(false);
   const [isEnabled2, setIsEnabled2] = useState(false);
@@ -70,6 +74,7 @@ const Grow = () => {
 
   // Función para enviar el estado del viento al servidor
   const setWind = (index, boolean) => {
+    console.log("setwind/");
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
@@ -77,9 +82,9 @@ const Grow = () => {
       }
     };
     if (boolean == true) {
-      xhttp.open("GET", `${IP}/prenderFotoperiodo${index + 1}`, true);
+      xhttp.open("GET", `${selectedIP}/prenderSwitch${index + 1}`, true);
     } else {
-      xhttp.open("GET", `${IP}/apagarFotoperiodo${index + 1}`, true);
+      xhttp.open("GET", `${selectedIP}/apagarSwitch${index + 1}`, true);
     }
     xhttp.send();
   };
@@ -247,6 +252,9 @@ const Grow = () => {
     };
   }, []);
 
+  const { data: knownDevices, isLoading, error } = useAppwrite(getAllDevices);
+  const [selectedIP, setSelectedIP] = useState("");
+
   if (loading) {
     return (
       <SafeAreaView className="px-4 my-6 bg-primary h-full flex flex-col justify-center items-center">
@@ -263,8 +271,30 @@ const Grow = () => {
       <ScrollView>
         <Text className="text-2xl text-white font-psemibold">GROW PRO</Text>
 
+        {/* Dropdown to select IP */}
+        <View
+          className="bg-white p-5 rounded-lg mt-5 mb-5"
+          style={{ height: 200 }}
+        >
+          <Text className="text-black">Seleccionar IP</Text>
+          <Picker
+            selectedValue={selectedIP}
+            onValueChange={(itemValue) => setSelectedIP(itemValue)}
+            style={{ height: 50, width: "100%" }}
+          >
+            <Picker.Item label="Seleccionar IP" value="" />
+            {knownDevices?.map((device) => (
+              <Picker.Item
+                key={device.$id}
+                label={`${device.model || "Device"} - ${device.ip}`}
+                value={`http://${device.ip}`}
+              />
+            ))}
+          </Picker>
+        </View>
+
         {/* <Chart /> */}
-        <Chart2 />
+        <Chart2 selectedIP={selectedIP} />
 
         {/* Fotoperiodo 1 */}
         <View className="bg-white p-5 rounded-lg mt-5">

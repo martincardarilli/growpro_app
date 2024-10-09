@@ -4,12 +4,13 @@ import {
   FlatList,
   Text,
   View,
+  TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { NetworkInfo } from "react-native-network-info";
 import useAppwrite from "../../lib/useAppwrite"; // Assuming useAppwrite is setup for fetching data
-import { getAllDevices } from "../../lib/appwrite"; // Mock API call to get all devices
+import { getAllDevices, updateDevice } from "../../lib/appwrite"; // Import updateDevice function
 import ToFormButton from "../../components/devices/ToFormButton";
 
 const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
@@ -26,26 +27,25 @@ const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
       })
       .catch((err) => {
         clearTimeout(timeoutId);
-        reject(err); // Asegura que el error se maneje
+        reject(err);
       });
   });
 };
 
-// DeviceList Component (unificado con ScanNetwork)
+// DeviceList Component
 const DeviceList = () => {
   const {
     data: knownDevices,
     refetch,
     isLoading: isDevicesLoading,
     error: devicesError,
-  } = useAppwrite(getAllDevices); // Assuming getAllDevices fetches the devices from Appwrite
+  } = useAppwrite(getAllDevices);
 
   const [refreshing, setRefreshing] = useState(false);
   const [localIp, setLocalIp] = useState(null);
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch known devices on mount
   useEffect(() => {
     NetworkInfo.getIPAddress().then((ip) => {
       setLocalIp(ip);
@@ -55,7 +55,6 @@ const DeviceList = () => {
   }, []);
 
   const scanLocalNetwork = async (localIp) => {
-    // Limpiamos los dispositivos antes de hacer un nuevo escaneo
     setDevices([]);
     setIsLoading(true);
 
@@ -82,7 +81,6 @@ const DeviceList = () => {
     }
 
     await Promise.all(scanPromises);
-
     setDevices(devicesFound);
     setIsLoading(false);
   };
@@ -93,10 +91,20 @@ const DeviceList = () => {
     setLocalIp(ip);
     console.log("Local IP Refresh:", ip);
 
-    await refetch(); // Refresca los dispositivos conocidos desde la base de datos
-    await scanLocalNetwork(ip); // Se vuelve a escanear la red local
+    await refetch();
+    await scanLocalNetwork(ip);
 
     setRefreshing(false);
+  };
+
+  const handleUpdateIp = async (deviceId, newIp) => {
+    try {
+      await updateDevice(deviceId, { ip: newIp });
+      console.log("IP actualizada correctamente");
+      await refetch(); // Refresca la lista de dispositivos
+    } catch (error) {
+      console.error("Error al actualizar la IP del dispositivo:", error);
+    }
   };
 
   const isKnownDevice = (deviceMAC) => {
@@ -122,18 +130,30 @@ const DeviceList = () => {
     parseDeviceResponse(item.response)
   );
 
-  // Filtrar los dispositivos conocidos que no fueron encontrados
   const missingDevices = knownDevices?.filter(
     (knownDevice) => !foundMacAddresses.includes(knownDevice.MAC)
   );
 
-  // Combinar dispositivos encontrados con los no encontrados
   const combinedDevices = [
-    ...devices.map((item) => ({ ...item, found: true })), // Marcamos los dispositivos encontrados
-    ...(missingDevices?.map((device) => ({ ...device, found: false })) || []), // Marcamos los dispositivos no encontrados
+    ...devices.map((item) => ({ ...item, found: true })),
+    ...(missingDevices?.map((device) => ({ ...device, found: false })) || []),
   ];
 
-  // Mostrar el indicador de carga solo si no estamos haciendo "pull-to-refresh"
+  // Ahora, creamos una función para actualizar el 'status' usando un patrón similar
+  async function updateStatus(deviceId, newStatus) {
+    try {
+      // Llama a la función que actualiza el dispositivo con el nuevo status
+      await updateDevice(deviceId, { status: newStatus });
+
+      console.log(
+        `Status actualizado para el dispositivo ${deviceId}:`,
+        newStatus
+      );
+    } catch (error) {
+      console.error("Error al actualizar el status:", error);
+    }
+  }
+
   if ((isDevicesLoading || isLoading) && !refreshing) {
     return (
       <SafeAreaView className="bg-primary flex-1 justify-center items-center">
@@ -142,7 +162,6 @@ const DeviceList = () => {
     );
   }
 
-  // Mostrar un mensaje de error si falla la carga de los dispositivos
   if (devicesError) {
     return (
       <SafeAreaView className="bg-primary flex-1 justify-center items-center">
@@ -160,26 +179,11 @@ const DeviceList = () => {
         data={combinedDevices}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => {
-          // Aplicar opacidad a los ítems si está en estado de refresco
           const itemStyle = {
-            opacity: refreshing ? 0.5 : 1, // Cambia la opacidad durante el pull-to-refresh
+            opacity: refreshing ? 0.5 : 1,
           };
           if (item.found) {
-            // Dispositivos encontrados en el escaneo
             const macAddress = parseDeviceResponse(item.response);
-            if (!macAddress) {
-              return (
-                <View
-                  className="p-4 bg-red-800 mb-4 rounded-lg"
-                  style={itemStyle}
-                >
-                  <Text className="text-white">
-                    {item.ip} Respuesta no válida o mal formada: {item.response}
-                  </Text>
-                </View>
-              );
-            }
-
             const knownDevice = isKnownDevice(macAddress);
             const ipChanged = knownDevice && knownDevice.ip !== item.ip;
 
@@ -190,18 +194,41 @@ const DeviceList = () => {
               >
                 <Text className="text-white">
                   {knownDevice
-                    ? "Dispositivo conocido"
+                    ? "Dispositivo conocido:"
                     : "(?) Dispositivo desconocido"}
                 </Text>
-                {knownDevice && (
+
+                <Text className="text-white">
+                  {knownDevice ? knownDevice.model : ""}
+                </Text>
+
+                {knownDevice && ipChanged && (
                   <Text className="text-white">
-                    {ipChanged
-                      ? "! La IP local ha cambiado"
-                      : "La IP local es la misma"}
+                    ! La IP local ha cambiado. Anterior: {knownDevice.ip}
                   </Text>
                 )}
-                <Text className="text-white font-bold">IP: {item.ip}</Text>
+                <View className="flex-row items-center">
+                  <Text className="text-white font-bold">IP: {item.ip}</Text>
+                  {ipChanged && knownDevice && (
+                    <TouchableOpacity
+                      onPress={() => handleUpdateIp(knownDevice.$id, item.ip)}
+                    >
+                      <Text className="text-blue-500 underline ml-2">
+                        (Actualizar IP)
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
                 <Text className="text-white mb-5">MAC: {macAddress}</Text>
+
+                <TouchableOpacity
+                  onPress={() => updateStatus(knownDevice.$id, item.response)}
+                >
+                  <Text className="text-blue-500 underline ml-2">
+                    (Actualizar Status)
+                  </Text>
+                </TouchableOpacity>
+
                 <Text className="text-white" style={{ fontSize: 10 }}>
                   Respuesta:{" "}
                   {JSON.stringify(JSON.parse(item.response), null, 3)}
@@ -209,7 +236,6 @@ const DeviceList = () => {
               </View>
             );
           } else {
-            // Dispositivos conocidos no encontrados
             return (
               <View
                 key={item.MAC}

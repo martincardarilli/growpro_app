@@ -6,7 +6,7 @@ import Slider from "@react-native-community/slider"; // Si tu proyecto usa una v
 
 import ChartHistory from "./ChartHistory";
 
-const SimpleLineChart = () => {
+const SimpleLineChart = ({ selectedIP }) => {
   // En mi casa es de 192.168.100.X
   const [IP, setIP] = useState("http://192.168.0.111");
 
@@ -57,11 +57,15 @@ const SimpleLineChart = () => {
 
   // Función para leer la temperatura actual
   const readTemperature = () => {
+    if (!selectedIP) {
+      console.warn("No IP selected. Please choose a device.");
+      return;
+    }
+
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const newValue = this.responseText;
-
         setCurrentTemperature(newValue);
 
         setDataTemperaturaActual((prevData) => {
@@ -89,19 +93,26 @@ const SimpleLineChart = () => {
           ];
         });
 
-        console.log("Temperature updated: " + this.responseText);
+        console.log("Temperature updated: " + newValue);
+      } else {
+        // console.warn(`Error fetching temperature ${selectedIP}: ${this.status} - ${this.statusText} `);
       }
     };
-    xhttp.open("GET", `${IP}/temperature`, true);
+    xhttp.open("GET", `${selectedIP}/temperature`, true);
     xhttp.send();
   };
 
+  // Función para leer la humedad actual
   const readHumidity = () => {
+    if (!selectedIP) {
+      console.warn("No IP selected. Please choose a device.");
+      return;
+    }
+
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const newValue = this.responseText;
-
         setCurrentHumidity(newValue);
 
         setDataHumedadActual((prevData) => {
@@ -129,22 +140,28 @@ const SimpleLineChart = () => {
           ];
         });
 
-        console.log("Humedad updated: " + this.responseText);
+        console.log("Humidity updated: " + newValue);
       }
     };
-    xhttp.open("GET", `${IP}/humidity`, true);
+    xhttp.open("GET", `${selectedIP}/humidity`, true);
     xhttp.send();
   };
 
   useEffect(() => {
-    const temperatureIntervalId = setInterval(readTemperature, 5000);
-    const humidityIntervalId = setInterval(readHumidity, 5000);
+    console.log(selectedIP);
+    if (selectedIP) {
+      //readTemperature();
+      //readHumidity();
 
-    return () => {
-      clearInterval(temperatureIntervalId);
-      clearInterval(humidityIntervalId);
-    };
-  }, []);
+      const temperatureIntervalId = setInterval(readTemperature, 3000);
+      const humidityIntervalId = setInterval(readHumidity, 3000);
+
+      return () => {
+        clearInterval(temperatureIntervalId);
+        clearInterval(humidityIntervalId);
+      };
+    }
+  }, [selectedIP]);
 
   const [dataHumedadActual, setDataHumedadActual] = useState([
     { value: 50, dataPointText: "" },
