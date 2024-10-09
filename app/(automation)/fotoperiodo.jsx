@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView, Text, View, Alert } from "react-native";
-
-import { getAllAutomatizaciones, postAutomatizacion } from "../../lib/appwrite";
-import { CustomButton, FormField } from "../../components"; // Assuming this path is correct
+import { getAllDevices, postAutomatizacion } from "../../lib/appwrite";
+import { CustomButton, FormField } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { router } from "expo-router";
 
@@ -22,9 +21,47 @@ const CreateAutomation = () => {
     descripcion: "fastest",
     horaEncendido: "00:00",
     horaApagado: "00:00",
-    config: "fotoperiodo", // Hardcodeado a "Fotoperiodo"
-    // falta el user id?
+    config: "fotoperiodo",
   });
+  const [switches, setSwitches] = useState([]);
+
+  useEffect(() => {
+    // Function to fetch devices and extract switches
+    const fetchSwitches = async () => {
+      try {
+        const devices = await getAllDevices(); // Fetch all devices
+        const allSwitches = devices.flatMap((device) => {
+          try {
+            // Parse the 'status' field to extract switches
+            const status = JSON.parse(device.status);
+            return status.switches || [];
+          } catch (error) {
+            console.error(
+              "Error parsing status for device:",
+              device.MAC,
+              error
+            );
+            return [];
+          }
+        });
+        setSwitches(allSwitches);
+      } catch (error) {
+        console.error("Error fetching switches:", error);
+      }
+    };
+
+    fetchSwitches();
+  }, []);
+
+  const handleSwitchChange = (index, estado) => {
+    const updatedSwitches = switches.map((sw, idx) => {
+      if (idx === index) {
+        return { ...sw, estado: estado ? 1 : 0 };
+      }
+      return sw;
+    });
+    setSwitches(updatedSwitches);
+  };
 
   const submit = async () => {
     const { titulo, descripcion, horaEncendido, horaApagado } = form;
@@ -53,6 +90,7 @@ const CreateAutomation = () => {
           tipo: "fotoperiodo",
           horaEncendido: horaEncendido,
           horaApagado: horaApagado,
+          switches: switches, // Include the updated switches
         },
         userId: user.$id, // Associating with the user if needed
       });
@@ -110,6 +148,20 @@ const CreateAutomation = () => {
           handleChangeText={(e) => setForm({ ...form, horaApagado: e })}
           otherStyles="mt-5"
         />
+
+        <Text className="text-lg text-white font-semibold mt-5">Switches</Text>
+        {switches.map((sw, index) => (
+          <View key={index} className="mt-3">
+            <Text className="text-white">
+              {sw.nombre} - Modo: {sw.modo}
+            </Text>
+            <CustomButton
+              title={sw.estado ? "Turn Off" : "Turn On"}
+              handlePress={() => handleSwitchChange(index, !sw.estado)}
+              containerStyles="mt-2"
+            />
+          </View>
+        ))}
 
         <CustomButton
           title="Submit"
