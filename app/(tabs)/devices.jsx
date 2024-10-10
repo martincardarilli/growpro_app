@@ -1,24 +1,13 @@
-import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  FlatList,
-  Text,
-  View,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-} from "react-native";
-import { NetworkInfo } from "react-native-network-info";
-import useAppwrite from "../../lib/useAppwrite"; // Assuming useAppwrite is setup for fetching data
-import { getAllDevices, updateDevice } from "../../lib/appwrite"; // Import updateDevice function
-import ToFormButton from "../../components/devices/ToFormButton";
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, FlatList, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { NetworkInfo } from 'react-native-network-info';
+import useAppwrite from '../../lib/useAppwrite'; // Assuming useAppwrite is setup for fetching data
+import { getAllDevices, updateDevice } from '../../lib/appwrite'; // Import updateDevice function
+import ToFormButton from '../../components/devices/ToFormButton';
 
 const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
   return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(
-      () => reject(new Error("Request timed out")),
-      timeout
-    );
+    const timeoutId = setTimeout(() => reject(new Error('Request timed out')), timeout);
 
     fetch(url, options)
       .then((response) => {
@@ -34,12 +23,7 @@ const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
 
 // DeviceList Component
 const DeviceList = () => {
-  const {
-    data: knownDevices,
-    refetch,
-    isLoading: isDevicesLoading,
-    error: devicesError,
-  } = useAppwrite(getAllDevices);
+  const { data: knownDevices, refetch, isLoading: isDevicesLoading, error: devicesError } = useAppwrite(getAllDevices);
 
   const [refreshing, setRefreshing] = useState(false);
   const [localIp, setLocalIp] = useState(null);
@@ -49,7 +33,7 @@ const DeviceList = () => {
   useEffect(() => {
     NetworkInfo.getIPAddress().then((ip) => {
       setLocalIp(ip);
-      console.log("Local IP:", ip);
+      console.log('Local IP:', ip);
       scanLocalNetwork(ip);
     });
   }, []);
@@ -58,7 +42,7 @@ const DeviceList = () => {
     setDevices([]);
     setIsLoading(true);
 
-    const ipParts = localIp.split(".");
+    const ipParts = localIp.split('.');
     const baseIp = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}`;
     let devicesFound = [];
 
@@ -66,7 +50,7 @@ const DeviceList = () => {
     for (let i = 2; i <= 254; i++) {
       const testIp = `${baseIp}.${i}`;
       scanPromises.push(
-        fetchWithTimeout(`http://${testIp}/status`, { method: "GET" }, 2000)
+        fetchWithTimeout(`http://${testIp}/status`, { method: 'GET' }, 2000)
           .then(async (response) => {
             if (response.ok) {
               const responseBody = await response.text();
@@ -89,7 +73,7 @@ const DeviceList = () => {
     setRefreshing(true);
     const ip = await NetworkInfo.getIPAddress();
     setLocalIp(ip);
-    console.log("Local IP Refresh:", ip);
+    console.log('Local IP Refresh:', ip);
 
     await refetch();
     await scanLocalNetwork(ip);
@@ -100,10 +84,10 @@ const DeviceList = () => {
   const handleUpdateIp = async (deviceId, newIp) => {
     try {
       await updateDevice(deviceId, { ip: newIp });
-      console.log("IP actualizada correctamente");
+      console.log('IP actualizada correctamente');
       await refetch(); // Refresca la lista de dispositivos
     } catch (error) {
-      console.error("Error al actualizar la IP del dispositivo:", error);
+      console.error('Error al actualizar la IP del dispositivo:', error);
     }
   };
 
@@ -114,30 +98,20 @@ const DeviceList = () => {
   const parseDeviceResponse = (response) => {
     try {
       const parsedResponse = JSON.parse(response);
-      if (
-        parsedResponse.device &&
-        typeof parsedResponse.device.mac_address === "string"
-      ) {
+      if (parsedResponse.device && typeof parsedResponse.device.mac_address === 'string') {
         return parsedResponse.device.mac_address;
       }
     } catch (error) {
-      console.error("Error al parsear la respuesta:", error);
+      console.error('Error al parsear la respuesta:', error);
     }
     return null;
   };
 
-  const foundMacAddresses = devices.map((item) =>
-    parseDeviceResponse(item.response)
-  );
+  const foundMacAddresses = devices.map((item) => parseDeviceResponse(item.response));
 
-  const missingDevices = knownDevices?.filter(
-    (knownDevice) => !foundMacAddresses.includes(knownDevice.MAC)
-  );
+  const missingDevices = knownDevices?.filter((knownDevice) => !foundMacAddresses.includes(knownDevice.MAC));
 
-  const combinedDevices = [
-    ...devices.map((item) => ({ ...item, found: true })),
-    ...(missingDevices?.map((device) => ({ ...device, found: false })) || []),
-  ];
+  const combinedDevices = [...devices.map((item) => ({ ...item, found: true })), ...(missingDevices?.map((device) => ({ ...device, found: false })) || [])];
 
   // Ahora, creamos una función para actualizar el 'status' usando un patrón similar
   async function updateStatus(deviceId, newStatus) {
@@ -145,12 +119,9 @@ const DeviceList = () => {
       // Llama a la función que actualiza el dispositivo con el nuevo status
       await updateDevice(deviceId, { status: newStatus });
 
-      console.log(
-        `Status actualizado para el dispositivo ${deviceId}:`,
-        newStatus
-      );
+      console.log(`Status actualizado para el dispositivo ${deviceId}:`, newStatus);
     } catch (error) {
-      console.error("Error al actualizar el status:", error);
+      console.error('Error al actualizar el status:', error);
     }
   }
 
@@ -172,9 +143,7 @@ const DeviceList = () => {
 
   return (
     <SafeAreaView className="bg-primary flex-1">
-      <Text className="text-1xl p-5 text-white font-psemibold">
-        IP Celular: {localIp}
-      </Text>
+      <Text className="text-1xl p-5 text-white font-psemibold">IP Celular: {localIp}</Text>
       <FlatList
         data={combinedDevices}
         keyExtractor={(item, index) => index.toString()}
@@ -188,82 +157,44 @@ const DeviceList = () => {
             const ipChanged = knownDevice && knownDevice.ip !== item.ip;
 
             return (
-              <View
-                className="p-4 bg-gray-800 mb-4 rounded-lg"
-                style={itemStyle}
-              >
-                <Text className="text-white">
-                  {knownDevice
-                    ? "Dispositivo conocido:"
-                    : "(?) Dispositivo desconocido"}
-                </Text>
+              <View className="p-4 bg-gray-800 mb-4 rounded-lg" style={itemStyle}>
+                <Text className="text-white">{knownDevice ? 'Dispositivo conocido:' : '(?) Dispositivo desconocido'}</Text>
 
-                <Text className="text-white">
-                  {knownDevice ? knownDevice.model : ""}
-                </Text>
+                <Text className="text-white">{knownDevice ? knownDevice.model : ''}</Text>
 
-                {knownDevice && ipChanged && (
-                  <Text className="text-white">
-                    ! La IP local ha cambiado. Anterior: {knownDevice.ip}
-                  </Text>
-                )}
+                {knownDevice && ipChanged && <Text className="text-white">! La IP local ha cambiado. Anterior: {knownDevice.ip}</Text>}
                 <View className="flex-row items-center">
                   <Text className="text-white font-bold">IP: {item.ip}</Text>
                   {ipChanged && knownDevice && (
-                    <TouchableOpacity
-                      onPress={() => handleUpdateIp(knownDevice.$id, item.ip)}
-                    >
-                      <Text className="text-blue-500 underline ml-2">
-                        (Actualizar IP)
-                      </Text>
+                    <TouchableOpacity onPress={() => handleUpdateIp(knownDevice.$id, item.ip)}>
+                      <Text className="text-blue-500 underline ml-2">(Actualizar IP)</Text>
                     </TouchableOpacity>
                   )}
                 </View>
                 <Text className="text-white mb-5">MAC: {macAddress}</Text>
 
-                <TouchableOpacity
-                  onPress={() => updateStatus(knownDevice.$id, item.response)}
-                >
-                  <Text className="text-blue-500 underline ml-2">
-                    (Actualizar Status)
-                  </Text>
+                <TouchableOpacity onPress={() => updateStatus(knownDevice.$id, item.response)}>
+                  <Text className="text-blue-500 underline ml-2">(Actualizar Status)</Text>
                 </TouchableOpacity>
 
                 <Text className="text-white" style={{ fontSize: 10 }}>
-                  Respuesta:{" "}
-                  {JSON.stringify(JSON.parse(item.response), null, 3)}
+                  Respuesta: {JSON.parse(item.response) ? JSON.stringify(JSON.parse(item.response), null, 3) : item.response}
                 </Text>
               </View>
             );
           } else {
             return (
-              <View
-                key={item.MAC}
-                className="p-4 bg-red-800 mb-4 rounded-lg"
-                style={itemStyle}
-              >
+              <View key={item.MAC} className="p-4 bg-red-800 mb-4 rounded-lg" style={itemStyle}>
                 <Text className="text-white font-bold">MAC: {item.MAC}</Text>
-                <Text className="text-white">
-                  Model: {item.model || "Unknown Model"}
-                </Text>
-                <Text className="text-white">
-                  Última IP conocida: {item.ip || "N/A"}
-                </Text>
+                <Text className="text-white">Model: {item.model || 'Unknown Model'}</Text>
+                <Text className="text-white">Última IP conocida: {item.ip || 'N/A'}</Text>
                 <Text className="text-white">No se encontró en la red.</Text>
               </View>
             );
           }
         }}
-        ListEmptyComponent={() => (
-          <Text className="text-white mt-2 text-center">No devices found.</Text>
-        )}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleLocalRefresh}
-            tintColor="#ffffff"
-          />
-        }
+        ListEmptyComponent={() => <Text className="text-white mt-2 text-center">No devices found.</Text>}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleLocalRefresh} tintColor="#ffffff" />}
       />
       <ToFormButton />
     </SafeAreaView>

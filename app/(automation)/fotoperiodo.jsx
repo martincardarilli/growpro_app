@@ -20,10 +20,10 @@ const CreateAutomation = () => {
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [selectedSwitchIndex, setSelectedSwitchIndex] = useState(null);
   const [form, setForm] = useState({
-    titulo: '',
-    descripcion: '',
-    horaEncendido: '',
-    horaApagado: '',
+    titulo: 'FASTEST',
+    descripcion: 'FASTEST',
+    horaEncendido: '00:00',
+    horaApagado: '01:00',
   });
 
   useEffect(() => {
@@ -41,8 +41,13 @@ const CreateAutomation = () => {
               switches: status.switches || [],
             };
           } catch (error) {
-            console.error('Error parsing status for device:', device.$id, error);
-            return { ...device, switches: [] };
+            console.warn(`Error parsing status for device ${device.$id}:`, error);
+            return {
+              ...device,
+              macAddress: 'Unknown',
+              switches: [],
+              error: 'Status malformed', // Mark the device with an error
+            };
           }
         });
         setDevices(parsedDevices);
@@ -68,52 +73,76 @@ const CreateAutomation = () => {
 
   const configureSwitch = async () => {
     if (!selectedDevice || selectedSwitchIndex === null) {
+      setUploading(false);
       return Alert.alert('Error', 'Please select a device and a switch.');
     }
-
+  
     try {
-      // Create an instance of XMLHttpRequest
+      setUploading(true);
+      const ipAddress = selectedDevice.ip;
+      const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
+  
+      const configData = {
+        tipo: 'fotoperiodo',
+        matriz: scheduleMatrix,
+      };
+  
+      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
+  
+      console.log('Attempting to configure switch with URL:', url);
+  
       const xhttp = new XMLHttpRequest();
-      xhttp.open('POST', `http://${selectedDevice.ipLocal}/setConfig`, true);
-      xhttp.setRequestHeader('Content-Type', 'application/json');
-
+      xhttp.open('GET', url, true);
+      xhttp.timeout = 10000; // 10 segundos de timeout
+  
       xhttp.onreadystatechange = () => {
         if (xhttp.readyState === 4) {
+          setUploading(false);
           if (xhttp.status === 200) {
             Alert.alert('Success', 'Switch configuration updated on device');
-
-            // Optionally record this action in the database
-            postAutomatizacion({
-              titulo: form.titulo,
-              descripcion: form.descripcion,
-              config: {
-                tipo: 'fotoperiodo',
-                switches: selectedDevice.switches,
-              },
-              userId: user.$id,
-            }).catch((error) => {
-              console.error('Error saving automatization:', error);
-              Alert.alert('Error', 'Failed to save the automatization.');
-            });
           } else {
             console.error('Failed to update switch:', xhttp.responseText);
             Alert.alert('Error', 'Failed to update switch on device.');
           }
         }
       };
-
-      // Send the request with the configuration as JSON
-      const configData = {
-        tipo: 'fotoperiodo',
-        estado: selectedSwitch.estado ? 1 : 0,
-      };
-      xhttp.send(JSON.stringify({ config: configData }));
+  
+      xhttp.send();
     } catch (error) {
+      setUploading(false);
       console.error('Error updating switch on device:', error);
       Alert.alert('Error', 'Failed to update switch on device.');
     }
   };
-
+  
+  
+  
+  const createScheduleMatrix = (horaEncendido, horaApagado) => {
+    // Crear un array de 288 elementos, inicializado con '0'
+    let schedule = Array(288).fill('0');
+  
+    // Descomponer las horas y minutos de encendido y apagado
+    const [startHour, startMinute] = horaEncendido.split(':').map(Number);
+    const [endHour, endMinute] = horaApagado.split(':').map(Number);
+  
+    // Calcular los índices de inicio y fin en la matriz de 288 elementos
+    const startIndex = startHour * 12 + Math.floor(startMinute / 5);
+    const endIndex = endHour * 12 + Math.floor(endMinute / 5);
+  
+    // Rellenar los intervalos con '1' para representar el encendido
+    if (startIndex <= endIndex) {
+      schedule.fill('1', startIndex, endIndex + 1);
+    } else {
+      // Caso en el que el encendido pasa la medianoche
+      schedule.fill('1', startIndex, 288); // Rellenar desde el inicio hasta el final
+      schedule.fill('1', 0, endIndex + 1); // Rellenar desde el inicio hasta el índice final
+    }
+  
+    // Convertir el array a un string
+    return schedule.join('');
+  };
+  
+  
   const submit = async () => {
     const { titulo, descripcion, horaEncendido, horaApagado } = form;
 
@@ -130,7 +159,8 @@ const CreateAutomation = () => {
           tipo: 'fotoperiodo',
           horaEncendido,
           horaApagado,
-          switches: selectedDevice ? selectedDevice.switches : [],
+          matriz: createScheduleMatrix(horaEncendido,horaApagado),
+          //switches: selectedDevice ? selectedDevice.switches : [],
         },
         userId: user.$id,
       });
@@ -155,13 +185,13 @@ const CreateAutomation = () => {
           {devices.map((device) => (
             <Picker.Item
               key={device.$id}
-              label={`Model: ${device.model}, MAC: ${device.macAddress}`}
+              label={`Model: ${device.model || 'Unknown'}, MAC: ${device.macAddress}${device.error ? ' (Error in status)' : ''}`}
               value={device.$id}
             />
           ))}
         </Picker>
 
-        {selectedDevice && selectedDevice.switches && (
+        {selectedDevice && selectedDevice.switches && !selectedDevice.error && (
           <>
             <Text className="text-lg text-white font-semibold mt-5">Select Switch</Text>
             <Picker selectedValue={selectedSwitchIndex} onValueChange={handleSwitchChange}>
