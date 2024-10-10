@@ -12,6 +12,7 @@ const isValidTime = (time) => {
   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Regex to match HH:MM format
   return timeRegex.test(time);
 };
+
 const CreateAutomation = () => {
   const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
@@ -30,7 +31,21 @@ const CreateAutomation = () => {
     const fetchDevices = async () => {
       try {
         const fetchedDevices = await getAllDevices();
-        setDevices(fetchedDevices);
+        const parsedDevices = fetchedDevices.map((device) => {
+          // Parse the status field to extract switches
+          try {
+            const status = JSON.parse(device.status);
+            return {
+              ...device,
+              macAddress: status.device.mac_address,
+              switches: status.switches || [],
+            };
+          } catch (error) {
+            console.error('Error parsing status for device:', device.$id, error);
+            return { ...device, switches: [] };
+          }
+        });
+        setDevices(parsedDevices);
       } catch (error) {
         console.error('Error fetching devices:', error);
       }
@@ -138,7 +153,11 @@ const CreateAutomation = () => {
         <Picker selectedValue={selectedDeviceId} onValueChange={handleDeviceChange}>
           <Picker.Item label="Select a device" value={null} />
           {devices.map((device) => (
-            <Picker.Item key={device.$id} label={device.name} value={device.$id} />
+            <Picker.Item
+              key={device.$id}
+              label={`Model: ${device.model}, MAC: ${device.macAddress}`}
+              value={device.$id}
+            />
           ))}
         </Picker>
 
@@ -148,7 +167,12 @@ const CreateAutomation = () => {
             <Picker selectedValue={selectedSwitchIndex} onValueChange={handleSwitchChange}>
               <Picker.Item label="Select a switch" value={null} />
               {selectedDevice.switches.map((sw, idx) => (
-                <Picker.Item key={idx} label={sw.nombre} value={idx} />
+                <Picker.Item
+                  key={idx}
+                  //label={`Name: ${sw.nombre}, Number: ${idx + 1}, Mode: ${sw.modo}`}
+                  label={`${sw.nombre} (${idx + 1})`}
+                  value={idx}
+                />
               ))}
             </Picker>
 
