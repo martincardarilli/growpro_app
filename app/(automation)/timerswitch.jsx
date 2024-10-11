@@ -1,23 +1,14 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { CustomButton } from "../../components"; // Assuming this path is correct
-import { postAutomatizacion } from "../../lib/appwrite"; // Assuming this path is correct
-import { useGlobalContext } from "../../context/GlobalProvider";
-import { router } from "expo-router";
+import React, { useState } from 'react';
+import { View, Text, Pressable, StyleSheet, ScrollView, Alert } from 'react-native';
+import { CustomButton } from '../../components'; // Assuming this path is correct
+import { postAutomatizacion } from '../../lib/appwrite'; // Assuming this path is correct
+import { useGlobalContext } from '../../context/GlobalProvider';
+import { router } from 'expo-router';
 
 // SwitchMatrix Component
 const SwitchMatrix = () => {
   const { user } = useGlobalContext();
-  const [schedule, setSchedule] = useState(
-    Array.from({ length: 24 }, () => Array(12).fill(false))
-  );
+  const [schedule, setSchedule] = useState(Array.from({ length: 24 }, () => Array(12).fill(false)));
   const [uploading, setUploading] = useState(false);
 
   // Función para alternar el estado de una celda
@@ -54,8 +45,8 @@ const SwitchMatrix = () => {
   const formatScheduleForSubmission = () => {
     return schedule
       .flat()
-      .map((active) => (active ? "1" : "0"))
-      .join(""); // Convierte cada valor booleano en "1" o "0" y lo une en una cadena
+      .map((active) => (active ? '1' : '0'))
+      .join(''); // Convierte cada valor booleano en "1" o "0" y lo une en una cadena
   };
 
   // Función para manejar el envío del formulario
@@ -64,26 +55,26 @@ const SwitchMatrix = () => {
     try {
       const formattedSchedule = formatScheduleForSubmission();
       await postAutomatizacion({
-        titulo: "Timer Automation", // O cualquier otro título
-        descripcion: "This is a timer-based automation",
+        titulo: 'Timer Automation', // O cualquier otro título
+        descripcion: 'This is a timer-based automation',
         config: {
-          tipo: "timer",
+          tipo: 'timer',
           matriz: formattedSchedule,
         },
         userId: user.$id,
       });
 
-      Alert.alert("Success", "Automatization created successfully");
-      router.push("/automatizaciones");
+      Alert.alert('Success', 'Automatization created successfully');
+      router.push('/automatizaciones');
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert('Error', error.message);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container} className="px-4 pt-6 bg-primary h-full">
+    <View style={styles.container} className="px-4 pt-6 bg-primary h-full">
       <View>
         <Text style={styles.title}>Select Time Intervals</Text>
         <ScrollView horizontal>
@@ -92,11 +83,7 @@ const SwitchMatrix = () => {
             <View style={styles.row}>
               <Text style={styles.hourLabel}></Text>
               {Array.from({ length: 12 }).map((_, interval) => (
-                <Pressable
-                  key={interval}
-                  onPress={() => toggleColumn(interval)}
-                  style={styles.toggleButton}
-                >
+                <Pressable key={interval} onPress={() => toggleColumn(interval)} style={styles.toggleButton}>
                   <Text style={styles.cellText}>C{interval + 1}</Text>
                 </Pressable>
               ))}
@@ -106,7 +93,7 @@ const SwitchMatrix = () => {
             {schedule.map((row, hour) => (
               <View key={hour} style={styles.row}>
                 <Pressable
-                  onPress={() => toggleRow(hour)}
+                  onPressIn={() => toggleRow(hour)} // Cambiado a onPressIn
                   style={styles.hourButton}
                 >
                   <Text style={styles.hourLabel}>{`${hour}:00`}</Text>
@@ -115,15 +102,10 @@ const SwitchMatrix = () => {
                   {row.map((isActive, interval) => (
                     <Pressable
                       key={interval}
-                      onPress={() => toggleCell(hour, interval)}
-                      style={[
-                        styles.cell,
-                        { backgroundColor: isActive ? "green" : "red" },
-                      ]}
+                      onPressIn={() => toggleCell(hour, interval)} // Cambiado a onPressIn
+                      style={[styles.cell, { backgroundColor: isActive ? 'green' : 'red' }]}
                     >
-                      <Text style={styles.cellText}>
-                        {getIntervalLabel(interval)}
-                      </Text>
+                      <Text style={styles.cellText}>{getIntervalLabel(interval)}</Text>
                     </Pressable>
                   ))}
                 </View>
@@ -133,14 +115,9 @@ const SwitchMatrix = () => {
         </ScrollView>
 
         {/* Botón para enviar la automatización */}
-        <CustomButton
-          title="Submit"
-          handlePress={submit}
-          containerStyles="mt-7"
-          isLoading={uploading}
-        />
+        <CustomButton title="Submit" handlePress={submit} containerStyles="mt-7" isLoading={uploading} />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -151,47 +128,46 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
-    color: "#fff",
+    color: '#fff',
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   hourLabel: {
     width: 45,
-    textAlign: "center",
-    color: "#fff",
+    textAlign: 'center',
+    color: '#fff',
   },
   hourButton: {
     width: 45,
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
   },
   intervalRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   cell: {
-    width: 22,
-    height: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 2,
+    width: 26,
+    height: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cellText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 12,
   },
   toggleButton: {
     width: 22,
     height: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
     margin: 2,
   },
 });
