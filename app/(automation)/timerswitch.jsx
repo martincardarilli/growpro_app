@@ -77,42 +77,40 @@ const SwitchMatrix = () => {
     <View style={styles.container} className="px-4 pt-6 bg-primary h-full">
       <View>
         <Text style={styles.title}>Select Time Intervals</Text>
-        <ScrollView horizontal>
-          <View>
-            {/* Encabezado con los botones de columnas */}
-            <View style={styles.row}>
-              <Text style={styles.hourLabel}></Text>
-              {Array.from({ length: 12 }).map((_, interval) => (
-                <Pressable key={interval} onPress={() => toggleColumn(interval)} style={styles.toggleButton}>
-                  <Text style={styles.cellText}>C{interval + 1}</Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* Celdas de la matriz para cada hora */}
-            {schedule.map((row, hour) => (
-              <View key={hour} style={styles.row}>
-                <Pressable
-                  onPressIn={() => toggleRow(hour)} // Cambiado a onPressIn
-                  style={styles.hourButton}
-                >
-                  <Text style={styles.hourLabel}>{`${hour}:00`}</Text>
-                </Pressable>
-                <View style={styles.intervalRow}>
-                  {row.map((isActive, interval) => (
-                    <Pressable
-                      key={interval}
-                      onPressIn={() => toggleCell(hour, interval)} // Cambiado a onPressIn
-                      style={[styles.cell, { backgroundColor: isActive ? 'green' : 'red' }]}
-                    >
-                      <Text style={styles.cellText}>{getIntervalLabel(interval)}</Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
+        <View>
+          {/* Encabezado con los botones de columnas */}
+          <View style={styles.row}>
+            <Text style={styles.hourLabel}></Text>
+            {Array.from({ length: 12 }).map((_, interval) => (
+              <Pressable key={interval} onPressIn={() => toggleColumn(interval)} style={styles.toggleButton}>
+                <Text style={styles.cellText}>C{interval + 1}</Text>
+              </Pressable>
             ))}
           </View>
-        </ScrollView>
+
+          {/* Celdas de la matriz para cada hora */}
+          {schedule.map((row, hour) => (
+            <View key={hour} style={styles.row}>
+              <Pressable
+                onPressIn={() => toggleRow(hour)} // Cambiado a onPressIn
+                style={styles.hourButton}
+              >
+                <Text style={styles.hourLabel}>{`${hour}:00`}</Text>
+              </Pressable>
+              <View style={styles.intervalRow}>
+                {row.map((isActive, interval) => (
+                  <Pressable
+                    key={interval}
+                    onPressIn={() => toggleCell(hour, interval)} // Cambiado a onPressIn
+                    style={[styles.cell, { backgroundColor: isActive ? 'green' : 'red' }]}
+                  >
+                    <Text style={styles.cellText}>{getIntervalLabel(interval)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
 
         {/* Botón para enviar la automatización */}
         <CustomButton title="Submit" handlePress={submit} containerStyles="mt-7" isLoading={uploading} />
