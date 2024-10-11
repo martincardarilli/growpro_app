@@ -83,7 +83,7 @@ const SwitchMatrix = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} className="px-4 pt-6 bg-primary h-full">
       <View>
         <Text style={styles.title}>Select Time Intervals</Text>
         <ScrollView horizontal>
@@ -160,23 +160,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   hourLabel: {
-    width: 40,
+    width: 45,
     textAlign: "center",
     color: "#fff",
   },
   hourButton: {
-    width: 40,
+    width: 45,
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "black",
   },
   intervalRow: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
   cell: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     justifyContent: "center",
     alignItems: "center",
     margin: 2,
@@ -186,11 +187,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   toggleButton: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "blue",
+    backgroundColor: "black",
     margin: 2,
   },
 });

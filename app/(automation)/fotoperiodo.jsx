@@ -76,25 +76,25 @@ const CreateAutomation = () => {
       setUploading(false);
       return Alert.alert('Error', 'Please select a device and a switch.');
     }
-  
+
     try {
       setUploading(true);
       const ipAddress = selectedDevice.ip;
       const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
-  
+
       const configData = {
         tipo: 'fotoperiodo',
         matriz: scheduleMatrix,
       };
-  
+
       const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
-  
+
       console.log('Attempting to configure switch with URL:', url);
-  
+
       const xhttp = new XMLHttpRequest();
       xhttp.open('GET', url, true);
       xhttp.timeout = 10000; // 10 segundos de timeout
-  
+
       xhttp.onreadystatechange = () => {
         if (xhttp.readyState === 4) {
           setUploading(false);
@@ -106,7 +106,7 @@ const CreateAutomation = () => {
           }
         }
       };
-  
+
       xhttp.send();
     } catch (error) {
       setUploading(false);
@@ -114,21 +114,19 @@ const CreateAutomation = () => {
       Alert.alert('Error', 'Failed to update switch on device.');
     }
   };
-  
-  
-  
+
   const createScheduleMatrix = (horaEncendido, horaApagado) => {
     // Crear un array de 288 elementos, inicializado con '0'
     let schedule = Array(288).fill('0');
-  
+
     // Descomponer las horas y minutos de encendido y apagado
     const [startHour, startMinute] = horaEncendido.split(':').map(Number);
     const [endHour, endMinute] = horaApagado.split(':').map(Number);
-  
+
     // Calcular los índices de inicio y fin en la matriz de 288 elementos
     const startIndex = startHour * 12 + Math.floor(startMinute / 5);
-    const endIndex = endHour * 12 + Math.floor(endMinute / 5);
-  
+    const endIndex = endHour * 12 + Math.floor(endMinute / 5) - 1;
+
     // Rellenar los intervalos con '1' para representar el encendido
     if (startIndex <= endIndex) {
       schedule.fill('1', startIndex, endIndex + 1);
@@ -137,12 +135,11 @@ const CreateAutomation = () => {
       schedule.fill('1', startIndex, 288); // Rellenar desde el inicio hasta el final
       schedule.fill('1', 0, endIndex + 1); // Rellenar desde el inicio hasta el índice final
     }
-  
+
     // Convertir el array a un string
     return schedule.join('');
   };
-  
-  
+
   const submit = async () => {
     const { titulo, descripcion, horaEncendido, horaApagado } = form;
 
@@ -159,7 +156,7 @@ const CreateAutomation = () => {
           tipo: 'fotoperiodo',
           horaEncendido,
           horaApagado,
-          matriz: createScheduleMatrix(horaEncendido,horaApagado),
+          matriz: createScheduleMatrix(horaEncendido, horaApagado),
           //switches: selectedDevice ? selectedDevice.switches : [],
         },
         userId: user.$id,
@@ -180,13 +177,19 @@ const CreateAutomation = () => {
         <Text className="text-2xl text-white font-semibold">Create Automatization</Text>
 
         <Text className="text-lg text-white font-semibold mt-5">Select Device</Text>
-        <Picker selectedValue={selectedDeviceId} onValueChange={handleDeviceChange}>
-          <Picker.Item label="Select a device" value={null} />
+        <Picker
+          selectedValue={selectedDeviceId}
+          onValueChange={handleDeviceChange}
+          style={{ color: 'white' }} // Aplica el color al Picker
+          itemStyle={{ color: 'white' }} // Esto es útil para iOS
+        >
+          <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
           {devices.map((device) => (
             <Picker.Item
               key={device.$id}
               label={`Model: ${device.model || 'Unknown'}, MAC: ${device.macAddress}${device.error ? ' (Error in status)' : ''}`}
               value={device.$id}
+              style={{ color: 'white' }} // Aplica el color a cada item para iOS
             />
           ))}
         </Picker>
@@ -194,14 +197,20 @@ const CreateAutomation = () => {
         {selectedDevice && selectedDevice.switches && !selectedDevice.error && (
           <>
             <Text className="text-lg text-white font-semibold mt-5">Select Switch</Text>
-            <Picker selectedValue={selectedSwitchIndex} onValueChange={handleSwitchChange}>
-              <Picker.Item label="Select a switch" value={null} />
+            <Picker
+              selectedValue={selectedSwitchIndex}
+              onValueChange={handleSwitchChange}
+              style={{ color: 'white' }} // Aplica el color al Picker
+              itemStyle={{ color: 'white' }} // Esto es útil para iOS
+            >
+              <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
               {selectedDevice.switches.map((sw, idx) => (
                 <Picker.Item
                   key={idx}
                   //label={`Name: ${sw.nombre}, Number: ${idx + 1}, Mode: ${sw.modo}`}
                   label={`${sw.nombre} (${idx + 1})`}
                   value={idx}
+                  style={{ color: 'white' }} // Aplica el color a cada item para iOS
                 />
               ))}
             </Picker>

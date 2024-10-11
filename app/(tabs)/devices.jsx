@@ -177,8 +177,25 @@ const DeviceList = () => {
                   <Text className="text-blue-500 underline ml-2">(Actualizar Status)</Text>
                 </TouchableOpacity>
 
-                <Text className="text-white" style={{ fontSize: 10 }}>
-                  Respuesta: {JSON.parse(item.response) ? JSON.stringify(JSON.parse(item.response), null, 3) : item.response}
+                <Text className="text-white" style={{ fontSize: 10, fontFamily: 'Courier' }}>
+                  Respuesta:{' '}
+                  {JSON.parse(item.response)
+                    ? JSON.stringify(
+                        JSON.parse(item.response),
+                        (key, value) => {
+                          // Detecta la clave "horario" y reemplaza el valor por una versión más amigable
+                          if (key === 'horario' && Array.isArray(value)) {
+                            // Agrega una sangría a cada fila de la matriz y elimina las comillas
+                            return '\n' + value.map((row) => '           ' + row.join(' ')).join('\n') + '\n';
+                          }
+                          return value;
+                        },
+                        2 // Ajusta la indentación para el resto del JSON
+                      )
+                        .replace(/\\n/g, '\n') // Asegúrate de que los saltos de línea se procesen correctamente
+                        .replace(/"    1/g, '    1') // Elimina las comillas iniciales de las líneas de la matriz
+                        .replace(/0\n"/g, '0\n') // Elimina las comillas finales de las líneas de la matriz
+                    : item.response}
                 </Text>
               </View>
             );
