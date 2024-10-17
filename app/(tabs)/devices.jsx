@@ -202,9 +202,8 @@ const DeviceList = () => {
           } else {
             return (
               <View key={item.MAC} className="p-4 bg-red-800 mb-4 rounded-lg" style={itemStyle}>
-                <Text className="text-white font-bold">MAC: {item.MAC}</Text>
-                <Text className="text-white">Model: {item.model || 'Unknown Model'}</Text>
-                <Text className="text-white">Última IP conocida: {item.ip || 'N/A'}</Text>
+                <Text className="text-white font-bold">{`${item.name} (${item.model}: ${item.MAC})`}</Text>
+                <Text className="text-white mb-5">IP: {item.ip || 'N/A'}</Text>
                 <Text className="text-white">No se encontró en la red.</Text>
               </View>
             );

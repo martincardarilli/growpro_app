@@ -68,6 +68,19 @@ const Automatizaciones = () => {
               Descripción: {item.descripcion || "Sin descripción"}
             </Text>
 
+            <Text className="text-gray-400">
+              MAC: {item.device || "Sin MAC"}
+            </Text>
+
+            <Text className="text-gray-400">
+              Switch: {parseInt(item.switch) + 1 || "Sin switch"}
+            </Text>
+
+
+            <Text className="text-gray-400 mt-5 mb-5">
+              Config (JSON): {item.config || "Sin config"}
+            </Text>
+
             {/* Display user information */}
             {item.userId && (
               <View className="flex-row items-center mt-2">

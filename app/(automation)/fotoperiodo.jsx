@@ -152,11 +152,15 @@ const CreateAutomation = () => {
       await postAutomatizacion({
         titulo,
         descripcion,
+        device: selectedDevice.macAddress,
+        switch: selectedSwitchIndex,
         config: {
+      
           tipo: 'fotoperiodo',
           horaEncendido,
           horaApagado,
           matriz: createScheduleMatrix(horaEncendido, horaApagado),
+      
           //switches: selectedDevice ? selectedDevice.switches : [],
         },
         userId: user.$id,
