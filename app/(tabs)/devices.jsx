@@ -102,7 +102,7 @@ const DeviceList = () => {
         return parsedResponse.device.mac_address;
       }
     } catch (error) {
-      console.error('Error al parsear la respuesta:', error);
+      console.warn('Error al parsear la respuesta:', error);
     }
     return null;
   };
@@ -160,7 +160,7 @@ const DeviceList = () => {
               <View className="p-4 bg-gray-800 mb-4 rounded-lg" style={itemStyle}>
                 <Text className="text-white">{knownDevice ? 'Dispositivo conocido:' : '(?) Dispositivo desconocido'}</Text>
 
-                <Text className="text-white">{knownDevice ? knownDevice.model : ''}</Text>
+                <Text className="text-white">{knownDevice ? `${knownDevice.name} (${knownDevice.model}: ${knownDevice.MAC})` : ''}</Text>
 
                 {knownDevice && ipChanged && <Text className="text-white">! La IP local ha cambiado. Anterior: {knownDevice.ip}</Text>}
                 <View className="flex-row items-center">
