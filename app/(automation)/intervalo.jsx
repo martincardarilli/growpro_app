@@ -22,8 +22,8 @@ const CreateAutomation = () => {
   const [form, setForm] = useState({
     titulo: 'FASTEST',
     descripcion: 'FASTEST',
-    horaEncendido: '00:00',
-    horaApagado: '01:00',
+    minutosPrendido: '15',
+    minutosApagado: '45',
   });
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const CreateAutomation = () => {
       const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
 
       const configData = {
-        tipo: 'fotoperiodo',
+        tipo: 'intervalo',
         matriz: scheduleMatrix,
       };
 
@@ -141,9 +141,9 @@ const CreateAutomation = () => {
   };
 
   const submit = async () => {
-    const { titulo, descripcion, horaEncendido, horaApagado } = form;
+    const { titulo, descripcion, minutosPrendido, minutosApagado } = form;
 
-    if (!titulo || !descripcion || !horaEncendido || !horaApagado) {
+    if (!titulo || !descripcion || !minutosPrendido || !minutosApagado) {
       return Alert.alert('Please provide all fields: title, description, turn-on time, and turn-off time');
     }
 
@@ -155,13 +155,9 @@ const CreateAutomation = () => {
         device: selectedDevice.macAddress,
         switch: selectedSwitchIndex,
         config: {
-      
-          tipo: 'fotoperiodo',
-          horaEncendido,
-          horaApagado,
-          matriz: createScheduleMatrix(horaEncendido, horaApagado),
-      
-          //switches: selectedDevice ? selectedDevice.switches : [],
+          tipo: 'intervalo',
+          minutosPrendido: minutosPrendido,
+          minutosApagado: minutosApagado,
         },
         userId: user.$id,
       });
@@ -175,7 +171,7 @@ const CreateAutomation = () => {
     }
   };
 
-    // Helper function to calculate the total time interval in minutes
+  // Helper function to calculate the total time interval in minutes
 const calculateTotalTime = (start, end) => {
   const [startHour, startMinute] = start.split(':').map(Number);
   const [endHour, endMinute] = end.split(':').map(Number);
@@ -189,7 +185,8 @@ const calculateTotalTime = (start, end) => {
   return totalMinutes;
 };
 
-const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagado);
+// Calcular el tiempo total
+const totalTimeInterval = parseInt(form.minutosPrendido) + parseInt(form.minutosApagado);
 
   return (
     <SafeAreaView className="px-4 pt-6 bg-primary h-full">
@@ -200,14 +197,14 @@ const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagad
         <Picker
           selectedValue={selectedDeviceId}
           onValueChange={handleDeviceChange}
-          style={{ color: 'white' }} // Aplica el color al Picker
-          itemStyle={{ color: 'white' }} // Esto es útil para iOS
+          style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
+          itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
         >
           <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
           {devices.map((device) => (
             <Picker.Item
               key={device.$id}
-              label={`Model: ${device.model || 'Unknown'}, MAC: ${device.macAddress}${device.error ? ' (Error in status)' : ''}`}
+              label={`${device.name || 'Unknown'} (${device.model}: ${device.macAddress}) ${device.error ? ' (Error in status)' : ''}`}
               value={device.$id}
               style={{ color: 'white' }} // Aplica el color a cada item para iOS
             />
@@ -220,8 +217,8 @@ const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagad
             <Picker
               selectedValue={selectedSwitchIndex}
               onValueChange={handleSwitchChange}
-              style={{ color: 'white' }} // Aplica el color al Picker
-              itemStyle={{ color: 'white' }} // Esto es útil para iOS
+              style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
+              itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
             >
               <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
               {selectedDevice.switches.map((sw, idx) => (
@@ -254,27 +251,27 @@ const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagad
           otherStyles="mt-5"
         />
         <FormField
-          title="Turn-on Time"
-          value={form.horaEncendido}
-          placeholder="Enter turn-on time (HH:MM)..."
-          handleChangeText={(e) => setForm({ ...form, horaEncendido: e })}
+          title="Minutos Prendido"
+          value={form.minutosPrendido}
+          placeholder="Enter minutes on..."
+          handleChangeText={(e) => setForm({ ...form, minutosPrendido: e })}
           otherStyles="mt-5"
         />
         <FormField
-          title="Turn-off Time"
-          value={form.horaApagado}
-          placeholder="Enter turn-off time (HH:MM)..."
-          handleChangeText={(e) => setForm({ ...form, horaApagado: e })}
+          title="Minutos Apagado"
+          value={form.minutosApagado}
+          placeholder="Enter minutes off..."
+          handleChangeText={(e) => setForm({ ...form, minutosApagado: e })}
           otherStyles="mt-5"
         />
 
- {/* Añadir la visualización del tiempo total al final */}
- <View className="mt-5">
+         {/* Añadir la visualización del tiempo total al final */}
+      <View className="mt-5">
         <Text className="text-lg text-white font-semibold">
           Tiempo intervalo total: {Math.floor(totalTimeInterval / 60)} horas y {totalTimeInterval % 60} minutos
         </Text>
       </View>
-      
+
         <CustomButton title="Submit" handlePress={submit} containerStyles="mt-5" isLoading={uploading} />
       </ScrollView>
     </SafeAreaView>

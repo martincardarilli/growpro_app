@@ -30,6 +30,14 @@ const MainMenu = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
+        style={styles.box}
+        className="bg-gray-800"
+        onPress={() => router.push("/intervalo")}
+      >
+        <Text style={styles.boxText}>Intervalo</Text>
+      </TouchableOpacity>     
+
+      <TouchableOpacity
         disabled={true}
         style={styles.box}
         className="bg-gray-800 opacity-20"
