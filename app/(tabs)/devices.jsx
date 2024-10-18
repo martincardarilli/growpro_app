@@ -98,15 +98,19 @@ const DeviceList = () => {
 
   const parseDeviceResponse = (response) => {
     try {
-      const parsedResponse = JSON.parse(response);
-      if (parsedResponse.device && typeof parsedResponse.device.mac_address === 'string') {
-        return parsedResponse.device.mac_address;
+      // Verifica si la respuesta es un string y comienza con "{", lo que indica un JSON
+      if (typeof response === 'string' && response.trim().startsWith('{')) {
+        const parsedResponse = JSON.parse(response);
+        if (parsedResponse.device && typeof parsedResponse.device.mac_address === 'string') {
+          return parsedResponse.device.mac_address;
+        }
       }
     } catch (error) {
       console.warn('Error al parsear la respuesta:', error);
     }
     return null;
   };
+  
 
   const foundMacAddresses = devices.map((item) => parseDeviceResponse(item.response));
 

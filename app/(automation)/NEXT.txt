@@ -19,6 +19,8 @@ const CreateAutomation = () => {
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [selectedSwitchIndex, setSelectedSwitchIndex] = useState(null);
+  const [step, setStep] = useState(1); // Controla el paso actual del formulario
+
   const [form, setForm] = useState({
     titulo: 'FASTEST',
     descripcion: 'FASTEST',
@@ -32,7 +34,6 @@ const CreateAutomation = () => {
       try {
         const fetchedDevices = await getAllDevices();
         const parsedDevices = fetchedDevices.map((device) => {
-          // Parse the status field to extract switches
           try {
             const status = JSON.parse(device.status);
             return {
@@ -46,7 +47,7 @@ const CreateAutomation = () => {
               ...device,
               macAddress: 'Unknown',
               switches: [],
-              error: 'Status malformed', // Mark the device with an error
+              error: 'Status malformed',
             };
           }
         });
@@ -89,8 +90,6 @@ const CreateAutomation = () => {
 
       const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
 
-      console.log('Attempting to configure switch with URL:', url);
-
       const xhttp = new XMLHttpRequest();
       xhttp.open('GET', url, true);
       xhttp.timeout = 10000; // 10 segundos de timeout
@@ -101,7 +100,6 @@ const CreateAutomation = () => {
           if (xhttp.status === 200) {
             Alert.alert('Success', 'Switch configuration updated on device');
           } else {
-            console.error('Failed to update switch:', xhttp.responseText);
             Alert.alert('Error', 'Failed to update switch on device.');
           }
         }
@@ -110,34 +108,40 @@ const CreateAutomation = () => {
       xhttp.send();
     } catch (error) {
       setUploading(false);
-      console.error('Error updating switch on device:', error);
       Alert.alert('Error', 'Failed to update switch on device.');
     }
   };
 
   const createScheduleMatrix = (horaEncendido, horaApagado) => {
-    // Crear un array de 288 elementos, inicializado con '0'
     let schedule = Array(288).fill('0');
-
-    // Descomponer las horas y minutos de encendido y apagado
     const [startHour, startMinute] = horaEncendido.split(':').map(Number);
     const [endHour, endMinute] = horaApagado.split(':').map(Number);
 
-    // Calcular los índices de inicio y fin en la matriz de 288 elementos
     const startIndex = startHour * 12 + Math.floor(startMinute / 5);
     const endIndex = endHour * 12 + Math.floor(endMinute / 5) - 1;
 
-    // Rellenar los intervalos con '1' para representar el encendido
     if (startIndex <= endIndex) {
       schedule.fill('1', startIndex, endIndex + 1);
     } else {
-      // Caso en el que el encendido pasa la medianoche
-      schedule.fill('1', startIndex, 288); // Rellenar desde el inicio hasta el final
-      schedule.fill('1', 0, endIndex + 1); // Rellenar desde el inicio hasta el índice final
+      schedule.fill('1', startIndex, 288);
+      schedule.fill('1', 0, endIndex + 1);
     }
 
-    // Convertir el array a un string
     return schedule.join('');
+  };
+
+  const handleNextStep = () => {
+    if (step === 1 && (!form.minutosPrendido || !form.minutosApagado)) {
+      return Alert.alert('Error', 'Please provide both on and off time.');
+    }
+    if (step === 2 && (!selectedDevice || selectedSwitchIndex === null)) {
+      return Alert.alert('Error', 'Please select a device and a switch.');
+    }
+    setStep(step + 1);
+  };
+
+  const handlePreviousStep = () => {
+    if (step > 1) setStep(step - 1);
   };
 
   const submit = async () => {
@@ -171,127 +175,106 @@ const CreateAutomation = () => {
     }
   };
 
-  // Helper function to calculate the total time interval in minutes
-  const calculateTotalTime = (start, end) => {
-    const [startHour, startMinute] = start.split(':').map(Number);
-    const [endHour, endMinute] = end.split(':').map(Number);
-
-    const startTime = startHour * 60 + startMinute;
-    const endTime = endHour * 60 + endMinute;
-
-    // Si el tiempo de encendido es mayor que el de apagado, asumimos que el intervalo pasa la medianoche.
-    const totalMinutes = endTime >= startTime ? endTime - startTime : 1440 - startTime + endTime; // 1440 = 24 * 60
-
-    return totalMinutes;
-  };
-
-  // Calcular el tiempo total
   const totalTimeInterval = parseInt(form.minutosPrendido) + parseInt(form.minutosApagado);
 
   return (
     <SafeAreaView className="px-4 pt-6 bg-primary h-full">
       <ScrollView>
-        <Text className="text-2xl text-white font-semibold">Intervalo:</Text>
+        <Text className="text-2xl text-white font-semibold">Create Automatization</Text>
 
-        <FormField
-          title="Minutos Prendido"
-          value={form.minutosPrendido}
-          placeholder="Enter minutes on..."
-          handleChangeText={(e) => setForm({ ...form, minutosPrendido: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Minutos Apagado"
-          value={form.minutosApagado}
-          placeholder="Enter minutes off..."
-          handleChangeText={(e) => setForm({ ...form, minutosApagado: e })}
-          otherStyles="mt-5"
-        />
+        {step === 1 && (
+          <>
+            <FormField
+              title="Minutos Prendido"
+              value={form.minutosPrendido}
+              placeholder="Enter minutes on..."
+              handleChangeText={(e) => setForm({ ...form, minutosPrendido: e })}
+              otherStyles="mt-5"
+            />
+            <FormField
+              title="Minutos Apagado"
+              value={form.minutosApagado}
+              placeholder="Enter minutes off..."
+              handleChangeText={(e) => setForm({ ...form, minutosApagado: e })}
+              otherStyles="mt-5"
+            />
+          </>
+        )}
 
-        {/* Añadir la visualización del tiempo total al final */}
+        {step === 2 && (
+          <>
+            <Text className="text-lg text-white font-semibold mt-5">Select Device</Text>
+            <Picker
+              selectedValue={selectedDeviceId}
+              onValueChange={handleDeviceChange}
+              style={{ color: 'white', fontSize: 12 }}
+              itemStyle={{ color: 'white', fontSize: 12 }}
+            >
+              <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
+              {devices.map((device) => (
+                <Picker.Item
+                  key={device.$id}
+                  label={`${device.name || 'Unknown'} (${device.model}: ${device.macAddress})`}
+                  value={device.$id}
+                  style={{ color: 'white' }}
+                />
+              ))}
+            </Picker>
+
+            {selectedDevice && selectedDevice.switches && !selectedDevice.error && (
+              <>
+                <Text className="text-lg text-white font-semibold mt-5">Select Switch</Text>
+                <Picker
+                  selectedValue={selectedSwitchIndex}
+                  onValueChange={handleSwitchChange}
+                  style={{ color: 'white', fontSize: 12 }}
+                  itemStyle={{ color: 'white', fontSize: 12 }}
+                >
+                  <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
+                  {selectedDevice.switches.map((sw, idx) => (
+                    <Picker.Item
+                      key={idx}
+                      label={`${sw.nombre} (${idx + 1})`}
+                      value={idx}
+                      style={{ color: 'white' }}
+                    />
+                  ))}
+                </Picker>
+              </>
+            )}
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <FormField
+              title="Title"
+              value={form.titulo}
+              placeholder="Enter title..."
+              handleChangeText={(e) => setForm({ ...form, titulo: e })}
+              otherStyles="mt-5"
+            />
+            <FormField
+              title="Description"
+              value={form.descripcion}
+              placeholder="Enter description..."
+              handleChangeText={(e) => setForm({ ...form, descripcion: e })}
+              otherStyles="mt-5"
+            />
+          </>
+        )}
+
         <View className="mt-5">
           <Text className="text-lg text-white font-semibold">
             Tiempo intervalo total: {Math.floor(totalTimeInterval / 60)} horas y {totalTimeInterval % 60} minutos
           </Text>
         </View>
 
-        {/* Añadir línea divisoria */}
-        <View
-          style={{
-            borderBottomColor: 'gray',
-            borderBottomWidth: 2,
-            marginVertical: 50,
-          }}
-        />
-
-        <FormField
-          title="Title"
-          value={form.titulo}
-          placeholder="Enter title..."
-          handleChangeText={(e) => setForm({ ...form, titulo: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Description"
-          value={form.descripcion}
-          placeholder="Enter description..."
-          handleChangeText={(e) => setForm({ ...form, descripcion: e })}
-          otherStyles="mt-5"
-        />
-
-        {/* Añadir línea divisoria */}
-        <View
-          style={{
-            borderBottomColor: 'gray',
-            borderBottomWidth: 2,
-            marginVertical: 50,
-          }}
-        />
-
-        <Text className="text-lg text-white font-semibold mt-5">Select Device</Text>
-        <Picker
-          selectedValue={selectedDeviceId}
-          onValueChange={handleDeviceChange}
-          style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
-          itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
-        >
-          <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
-          {devices.map((device) => (
-            <Picker.Item
-              key={device.$id}
-              label={`${device.name || 'Unknown'} (${device.model}: ${device.macAddress}) ${device.error ? ' (Error in status)' : ''}`}
-              value={device.$id}
-              style={{ color: 'white' }} // Aplica el color a cada item para iOS
-            />
-          ))}
-        </Picker>
-
-        {selectedDevice && selectedDevice.switches && !selectedDevice.error && (
-          <>
-            <Text className="text-lg text-white font-semibold mt-5">Select Switch</Text>
-            <Picker
-              selectedValue={selectedSwitchIndex}
-              onValueChange={handleSwitchChange}
-              style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
-              itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
-            >
-              <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
-              {selectedDevice.switches.map((sw, idx) => (
-                <Picker.Item
-                  key={idx}
-                  //label={`Name: ${sw.nombre}, Number: ${idx + 1}, Mode: ${sw.modo}`}
-                  label={`${sw.nombre} (${idx + 1})`}
-                  value={idx}
-                  style={{ color: 'white' }} // Aplica el color a cada item para iOS
-                />
-              ))}
-            </Picker>
-
-            <CustomButton title="Configure Switch" handlePress={configureSwitch} containerStyles="mt-5" />
-          </>
-        )}
-
-        <CustomButton title="Submit" handlePress={submit} containerStyles="mt-5" isLoading={uploading} />
+        <View className="flex-row justify-between mt-5">
+          {step > 1 && <CustomButton title="Previous" handlePress={handlePreviousStep} />}
+          {step < 3 && <CustomButton title="Next" handlePress={handleNextStep} />}
+          {step === 3 && <CustomButton title="Submit" handlePress={submit} isLoading={uploading} />}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

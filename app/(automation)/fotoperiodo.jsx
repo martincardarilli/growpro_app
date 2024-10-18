@@ -155,12 +155,11 @@ const CreateAutomation = () => {
         device: selectedDevice.macAddress,
         switch: selectedSwitchIndex,
         config: {
-      
           tipo: 'fotoperiodo',
           horaEncendido,
           horaApagado,
           matriz: createScheduleMatrix(horaEncendido, horaApagado),
-      
+
           //switches: selectedDevice ? selectedDevice.switches : [],
         },
         userId: user.$id,
@@ -175,39 +174,88 @@ const CreateAutomation = () => {
     }
   };
 
-    // Helper function to calculate the total time interval in minutes
-const calculateTotalTime = (start, end) => {
-  const [startHour, startMinute] = start.split(':').map(Number);
-  const [endHour, endMinute] = end.split(':').map(Number);
+  // Helper function to calculate the total time interval in minutes
+  const calculateTotalTime = (start, end) => {
+    const [startHour, startMinute] = start.split(':').map(Number);
+    const [endHour, endMinute] = end.split(':').map(Number);
 
-  const startTime = startHour * 60 + startMinute;
-  const endTime = endHour * 60 + endMinute;
+    const startTime = startHour * 60 + startMinute;
+    const endTime = endHour * 60 + endMinute;
 
-  // Si el tiempo de encendido es mayor que el de apagado, asumimos que el intervalo pasa la medianoche.
-  const totalMinutes = endTime >= startTime ? endTime - startTime : 1440 - startTime + endTime; // 1440 = 24 * 60
+    // Si el tiempo de encendido es mayor que el de apagado, asumimos que el intervalo pasa la medianoche.
+    const totalMinutes = endTime >= startTime ? endTime - startTime : 1440 - startTime + endTime; // 1440 = 24 * 60
 
-  return totalMinutes;
-};
+    return totalMinutes;
+  };
 
-const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagado);
+  const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagado);
 
   return (
     <SafeAreaView className="px-4 pt-6 bg-primary h-full">
       <ScrollView>
-        <Text className="text-2xl text-white font-semibold">Create Automatization</Text>
+        <Text className="text-2xl text-white font-semibold">Fotoperiodo:</Text>
+
+        <FormField
+          title="Turn-on Time"
+          value={form.horaEncendido}
+          placeholder="Enter turn-on time (HH:MM)..."
+          handleChangeText={(e) => setForm({ ...form, horaEncendido: e })}
+          otherStyles="mt-5"
+        />
+        <FormField
+          title="Turn-off Time"
+          value={form.horaApagado}
+          placeholder="Enter turn-off time (HH:MM)..."
+          handleChangeText={(e) => setForm({ ...form, horaApagado: e })}
+          otherStyles="mt-5"
+        />
+
+        {/* Añadir la visualización del tiempo total al final */}
+        <View className="mt-5">
+          <Text className="text-lg text-white font-semibold">
+            Tiempo intervalo total: {Math.floor(totalTimeInterval / 60)} horas y {totalTimeInterval % 60} minutos
+          </Text>
+        </View>
+
+        {/* Añadir línea divisoria */}
+        <View
+          style={{
+            borderBottomColor: 'gray',
+            borderBottomWidth: 2,
+            marginVertical: 50,
+          }}
+        />
+
+        <FormField title="Title" value={form.titulo} placeholder="Enter title..." handleChangeText={(e) => setForm({ ...form, titulo: e })} otherStyles="" />
+        <FormField
+          title="Description"
+          value={form.descripcion}
+          placeholder="Enter description..."
+          handleChangeText={(e) => setForm({ ...form, descripcion: e })}
+          otherStyles="mt-5"
+        />
+
+        {/* Añadir línea divisoria */}
+        <View
+          style={{
+            borderBottomColor: 'gray',
+            borderBottomWidth: 2,
+            marginVertical: 50,
+          }}
+        />
 
         <Text className="text-lg text-white font-semibold mt-5">Select Device</Text>
         <Picker
           selectedValue={selectedDeviceId}
           onValueChange={handleDeviceChange}
-          style={{ color: 'white' }} // Aplica el color al Picker
-          itemStyle={{ color: 'white' }} // Esto es útil para iOS
+          style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
+          itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
         >
           <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
           {devices.map((device) => (
             <Picker.Item
               key={device.$id}
-              label={`Model: ${device.model || 'Unknown'}, MAC: ${device.macAddress}${device.error ? ' (Error in status)' : ''}`}
+              label={`${device.name || 'Unknown'} (${device.model}: ${device.macAddress}) ${device.error ? ' (Error in status)' : ''}`}
               value={device.$id}
               style={{ color: 'white' }} // Aplica el color a cada item para iOS
             />
@@ -220,8 +268,8 @@ const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagad
             <Picker
               selectedValue={selectedSwitchIndex}
               onValueChange={handleSwitchChange}
-              style={{ color: 'white' }} // Aplica el color al Picker
-              itemStyle={{ color: 'white' }} // Esto es útil para iOS
+              style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
+              itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
             >
               <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
               {selectedDevice.switches.map((sw, idx) => (
@@ -239,42 +287,6 @@ const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagad
           </>
         )}
 
-        <FormField
-          title="Title"
-          value={form.titulo}
-          placeholder="Enter title..."
-          handleChangeText={(e) => setForm({ ...form, titulo: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Description"
-          value={form.descripcion}
-          placeholder="Enter description..."
-          handleChangeText={(e) => setForm({ ...form, descripcion: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Turn-on Time"
-          value={form.horaEncendido}
-          placeholder="Enter turn-on time (HH:MM)..."
-          handleChangeText={(e) => setForm({ ...form, horaEncendido: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Turn-off Time"
-          value={form.horaApagado}
-          placeholder="Enter turn-off time (HH:MM)..."
-          handleChangeText={(e) => setForm({ ...form, horaApagado: e })}
-          otherStyles="mt-5"
-        />
-
- {/* Añadir la visualización del tiempo total al final */}
- <View className="mt-5">
-        <Text className="text-lg text-white font-semibold">
-          Tiempo intervalo total: {Math.floor(totalTimeInterval / 60)} horas y {totalTimeInterval % 60} minutos
-        </Text>
-      </View>
-      
         <CustomButton title="Submit" handlePress={submit} containerStyles="mt-5" isLoading={uploading} />
       </ScrollView>
     </SafeAreaView>
