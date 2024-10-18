@@ -7,23 +7,23 @@ import { CustomButton, FormField } from '../../components';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { router } from 'expo-router';
 
-// Helper function to validate time format HH:MM
-const isValidTime = (time) => {
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Regex to match HH:MM format
-  return timeRegex.test(time);
-};
-
 const CreateAutomation = () => {
   const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [selectedSwitchIndex, setSelectedSwitchIndex] = useState(null);
+
+  // Form state with hours, minutes, and seconds for on and off times
   const [form, setForm] = useState({
     titulo: 'FASTEST',
     descripcion: 'FASTEST',
-    minutosPrendido: '15',
-    minutosApagado: '45',
+    horasPrendido: 0,
+    minutosPrendido: 0,
+    segundosPrendido: 0,
+    horasApagado: 0,
+    minutosApagado: 0,
+    segundosApagado: 0,
   });
 
   useEffect(() => {
@@ -32,7 +32,6 @@ const CreateAutomation = () => {
       try {
         const fetchedDevices = await getAllDevices();
         const parsedDevices = fetchedDevices.map((device) => {
-          // Parse the status field to extract switches
           try {
             const status = JSON.parse(device.status);
             return {
@@ -46,7 +45,7 @@ const CreateAutomation = () => {
               ...device,
               macAddress: 'Unknown',
               switches: [],
-              error: 'Status malformed', // Mark the device with an error
+              error: 'Status malformed', 
             };
           }
         });
@@ -64,7 +63,7 @@ const CreateAutomation = () => {
 
   const handleDeviceChange = (deviceId) => {
     setSelectedDeviceId(deviceId);
-    setSelectedSwitchIndex(null); // Reset selected switch when changing device
+    setSelectedSwitchIndex(null); 
   };
 
   const handleSwitchChange = (switchIndex) => {
@@ -80,11 +79,10 @@ const CreateAutomation = () => {
     try {
       setUploading(true);
       const ipAddress = selectedDevice.ip;
-      const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
+    //  const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
 
       const configData = {
         tipo: 'intervalo',
-        matriz: scheduleMatrix,
       };
 
       const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
@@ -115,36 +113,27 @@ const CreateAutomation = () => {
     }
   };
 
-  const createScheduleMatrix = (horaEncendido, horaApagado) => {
-    // Crear un array de 288 elementos, inicializado con '0'
-    let schedule = Array(288).fill('0');
-
-    // Descomponer las horas y minutos de encendido y apagado
-    const [startHour, startMinute] = horaEncendido.split(':').map(Number);
-    const [endHour, endMinute] = horaApagado.split(':').map(Number);
-
-    // Calcular los índices de inicio y fin en la matriz de 288 elementos
-    const startIndex = startHour * 12 + Math.floor(startMinute / 5);
-    const endIndex = endHour * 12 + Math.floor(endMinute / 5) - 1;
-
-    // Rellenar los intervalos con '1' para representar el encendido
-    if (startIndex <= endIndex) {
-      schedule.fill('1', startIndex, endIndex + 1);
-    } else {
-      // Caso en el que el encendido pasa la medianoche
-      schedule.fill('1', startIndex, 288); // Rellenar desde el inicio hasta el final
-      schedule.fill('1', 0, endIndex + 1); // Rellenar desde el inicio hasta el índice final
-    }
-
-    // Convertir el array a un string
-    return schedule.join('');
+  // Function to calculate total interval time (in seconds)
+  const calculateTotalTime = () => {
+    const totalPrendido =
+      parseInt(form.horasPrendido) * 3600 + parseInt(form.minutosPrendido) * 60 + parseInt(form.segundosPrendido);
+    const totalApagado =
+      parseInt(form.horasApagado) * 3600 + parseInt(form.minutosApagado) * 60 + parseInt(form.segundosApagado);
+    
+    return totalPrendido + totalApagado;
   };
 
-  const submit = async () => {
-    const { titulo, descripcion, minutosPrendido, minutosApagado } = form;
+  // Calcular el tiempo total en formato horas, minutos, segundos
+  const totalTimeInSeconds = calculateTotalTime();
+  const totalHours = Math.floor(totalTimeInSeconds / 3600);
+  const totalMinutes = Math.floor((totalTimeInSeconds % 3600) / 60);
+  const totalSeconds = totalTimeInSeconds % 60;
 
-    if (!titulo || !descripcion || !minutosPrendido || !minutosApagado) {
-      return Alert.alert('Please provide all fields: title, description, turn-on time, and turn-off time');
+  const submit = async () => {
+    const { titulo, descripcion } = form;
+
+    if (!titulo || !descripcion) {
+      return Alert.alert('Por favor, proporciona todos los campos: título y descripción.');
     }
 
     setUploading(true);
@@ -156,13 +145,17 @@ const CreateAutomation = () => {
         switch: selectedSwitchIndex,
         config: {
           tipo: 'intervalo',
-          minutosPrendido: minutosPrendido,
-          minutosApagado: minutosApagado,
+          horasPrendido: form.horasPrendido,
+          minutosPrendido: form.minutosPrendido,
+          segundosPrendido: form.segundosPrendido,
+          horasApagado: form.horasApagado,
+          minutosApagado: form.minutosApagado,
+          segundosApagado: form.segundosApagado,
         },
         userId: user.$id,
       });
 
-      Alert.alert('Success', 'Automatization created successfully');
+      Alert.alert('Éxito', 'Automatización creada exitosamente');
       router.push('/automatizaciones');
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -171,47 +164,85 @@ const CreateAutomation = () => {
     }
   };
 
-  // Helper function to calculate the total time interval in minutes
-  const calculateTotalTime = (start, end) => {
-    const [startHour, startMinute] = start.split(':').map(Number);
-    const [endHour, endMinute] = end.split(':').map(Number);
-
-    const startTime = startHour * 60 + startMinute;
-    const endTime = endHour * 60 + endMinute;
-
-    // Si el tiempo de encendido es mayor que el de apagado, asumimos que el intervalo pasa la medianoche.
-    const totalMinutes = endTime >= startTime ? endTime - startTime : 1440 - startTime + endTime; // 1440 = 24 * 60
-
-    return totalMinutes;
-  };
-
-  // Calcular el tiempo total
-  const totalTimeInterval = parseInt(form.minutosPrendido) + parseInt(form.minutosApagado);
-
   return (
     <SafeAreaView className="px-4 pt-6 bg-primary h-full">
       <ScrollView>
-        <Text className="text-2xl text-white font-semibold">Intervalo:</Text>
+        <Text className="text-2xl text-white font-semibold">Intervalo</Text>
 
-        <FormField
-          title="Minutos Prendido"
-          value={form.minutosPrendido}
-          placeholder="Enter minutes on..."
-          handleChangeText={(e) => setForm({ ...form, minutosPrendido: e })}
-          otherStyles="mt-5"
-        />
-        <FormField
-          title="Minutos Apagado"
-          value={form.minutosApagado}
-          placeholder="Enter minutes off..."
-          handleChangeText={(e) => setForm({ ...form, minutosApagado: e })}
-          otherStyles="mt-5"
-        />
+        <View className="mt-5">
+          <Text className="text-lg text-white font-semibold">Tiempo Prendido</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Picker
+              selectedValue={form.horasPrendido}
+              onValueChange={(value) => setForm({ ...form, horasPrendido: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(24).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}h`} value={i} />
+              ))}
+            </Picker>
 
-        {/* Añadir la visualización del tiempo total al final */}
+            <Picker
+              selectedValue={form.minutosPrendido}
+              onValueChange={(value) => setForm({ ...form, minutosPrendido: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(60).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}m`} value={i} />
+              ))}
+            </Picker>
+
+            <Picker
+              selectedValue={form.segundosPrendido}
+              onValueChange={(value) => setForm({ ...form, segundosPrendido: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(60).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}s`} value={i} />
+              ))}
+            </Picker>
+          </View>
+        </View>
+
+        <View className="mt-5">
+          <Text className="text-lg text-white font-semibold">Tiempo Apagado</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Picker
+              selectedValue={form.horasApagado}
+              onValueChange={(value) => setForm({ ...form, horasApagado: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(24).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}h`} value={i} />
+              ))}
+            </Picker>
+
+            <Picker
+              selectedValue={form.minutosApagado}
+              onValueChange={(value) => setForm({ ...form, minutosApagado: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(60).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}m`} value={i} />
+              ))}
+            </Picker>
+
+            <Picker
+              selectedValue={form.segundosApagado}
+              onValueChange={(value) => setForm({ ...form, segundosApagado: value })}
+              style={{ flex: 1 }}
+            >
+              {[...Array(60).keys()].map((i) => (
+                <Picker.Item key={i} label={`${i}s`} value={i} />
+              ))}
+            </Picker>
+          </View>
+        </View>
+
+        {/* Mostrar el tiempo total calculado */}
         <View className="mt-5">
           <Text className="text-lg text-white font-semibold">
-            Tiempo intervalo total: {Math.floor(totalTimeInterval / 60)} horas y {totalTimeInterval % 60} minutos
+            Tiempo intervalo total: {totalHours} horas, {totalMinutes} minutos, {totalSeconds} segundos
           </Text>
         </View>
 
@@ -223,22 +254,22 @@ const CreateAutomation = () => {
             marginVertical: 50,
           }}
         />
-
+        {/* Inputs adicionales */}
         <FormField
-          title="Title"
+          title="Título"
           value={form.titulo}
-          placeholder="Enter title..."
+          placeholder="Ingrese el título..."
           handleChangeText={(e) => setForm({ ...form, titulo: e })}
           otherStyles="mt-5"
         />
+
         <FormField
-          title="Description"
+          title="Descripción"
           value={form.descripcion}
-          placeholder="Enter description..."
+          placeholder="Ingrese la descripción..."
           handleChangeText={(e) => setForm({ ...form, descripcion: e })}
           otherStyles="mt-5"
         />
-
         {/* Añadir línea divisoria */}
         <View
           style={{
