@@ -191,7 +191,7 @@ const CreateAutomation = () => {
   const totalTimeInterval = calculateTotalTime(form.horaEncendido, form.horaApagado);
 
   return (
-    <SafeAreaView className="px-4 pt-6 bg-primary h-full">
+    <SafeAreaView className="px-4 bg-primary h-full">
       <ScrollView>
         <Text className="text-2xl text-white font-semibold">Fotoperiodo:</Text>
 
