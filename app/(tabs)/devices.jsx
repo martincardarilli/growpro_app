@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, FlatList, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { NetworkInfo } from 'react-native-network-info';
 import useAppwrite from '../../lib/useAppwrite'; // Assuming useAppwrite is setup for fetching data
-import { getAllDevices, updateDevice } from '../../lib/appwrite'; // Import updateDevice function
+import { getAllDevices, updateDevice, createDevice } from '../../lib/appwrite'; // Import updateDevice function
 import ToFormButton from '../../components/devices/ToFormButton';
+
 
 const fetchWithTimeout = (url, options = {}, timeout = 2000) => {
   return new Promise((resolve, reject) => {
@@ -125,6 +126,17 @@ const DeviceList = () => {
     }
   }
 
+  // Función para crear un nuevo dispositivo en Appwrite
+  const handleCreateDevice = async (macAddress, ip) => {
+    try {
+      await createDevice({ macAddress, ip, model: 'Desconocido', name: 'Nuevo dispositivo' });
+      console.log('Dispositivo registrado correctamente');
+      await refetch(); // Refresca la lista de dispositivos
+    } catch (error) {
+      console.error('Error al registrar el dispositivo:', error);
+    }
+  };
+
   if ((isDevicesLoading || isLoading) && !refreshing) {
     return (
       <SafeAreaView className="bg-primary flex-1 justify-center items-center">
@@ -159,6 +171,12 @@ const DeviceList = () => {
             return (
               <View className="p-4 bg-gray-800 mb-4 rounded-lg" style={itemStyle}>
                 <Text className="text-white">{knownDevice ? 'Dispositivo conocido:' : '(?) Dispositivo desconocido'}</Text>
+
+                {!knownDevice && (
+                  <TouchableOpacity onPress={() => handleCreateDevice(macAddress, item.ip)}>
+                    <Text className="text-blue-500 underline ml-2">Registrar dispositivo</Text>
+                  </TouchableOpacity>
+                )}
 
                 <Text className="text-white">{knownDevice ? `${knownDevice.name} (${knownDevice.model}: ${knownDevice.MAC})` : ''}</Text>
 

@@ -7,6 +7,7 @@ import { getAllAutomatizaciones } from '../../lib/appwrite';
 
 import ToFormButton from '../../components/automatizaciones/ToFormButton';
 
+
 // Automatizaciones Component
 const Automatizaciones = () => {
   const { data: automatizaciones, refetch, isLoading: isAutomatizacionesLoading, error: automatizacionesError } = useAppwrite(getAllAutomatizaciones);
@@ -53,11 +54,10 @@ const Automatizaciones = () => {
             <Text className="text-gray-400 mb-5">Descripción: {item.descripcion || 'Sin descripción'}</Text>
 
            
-
-            <Text className="text-gray-400">Device: {`${item.name || 'Unknown'} (${item.model || 'Unknown'}: ${item.device || 'Unknown'})`}</Text>
-
             <Text className="text-gray-400">Switch: {parseInt(item.switch) + 1 || 'Sin switch'}</Text>
+            <Text className="text-gray-400">Device: {`${item.device.name || 'Unknown'} (${item.device.model || 'Unknown'}: ${item.device.MAC || 'Unknown'})`}</Text>
 
+            
             <Text className="text-gray-400 mt-5 mb-5">Config (JSON): {item.config || 'Sin config'}</Text>
 
             {/* Display user information */}
