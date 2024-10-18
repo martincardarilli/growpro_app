@@ -16,9 +16,17 @@ const MainMenu = () => {
       <TouchableOpacity
         style={styles.box}
         className="bg-gray-800"
+        onPress={() => router.push("/intervalo")}
+      >
+        <Text style={styles.boxText}>Intervalo</Text>
+      </TouchableOpacity> 
+
+      <TouchableOpacity
+        style={styles.box}
+        className="bg-gray-800"
         onPress={() => router.push("/timerswitch")}
       >
-        <Text style={styles.boxText}>Timer/Switch</Text>
+        <Text style={styles.boxText}>Timer</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -29,13 +37,7 @@ const MainMenu = () => {
         <Text style={styles.boxText}>Causa/Efecto</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.box}
-        className="bg-gray-800"
-        onPress={() => router.push("/intervalo")}
-      >
-        <Text style={styles.boxText}>Intervalo</Text>
-      </TouchableOpacity>     
+          
 
       <TouchableOpacity
         disabled={true}

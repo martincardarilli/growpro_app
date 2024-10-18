@@ -232,11 +232,11 @@ const SimpleLineChart = ({ selectedIP }) => {
             }}
             data={dataHumedadActual}
             width={120}
-            height={80}
+            height={150}
             noOfSections={4}
             maxValue={100}
-            scrollToEnd={true}
-            spacing={50}
+            scrollToEnd={false}
+            spacing={20}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
             curved
@@ -278,11 +278,11 @@ const SimpleLineChart = ({ selectedIP }) => {
               paddingBottom: -20,
             }}
             data={dataTemperaturaActual}
-            width={150}
-            height={80}
+            width={120}
+            height={150}
             noOfSections={4}
-            scrollToEnd={true}
-            spacing={50}
+            scrollToEnd={false}
+            spacing={20}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
             curved
@@ -300,7 +300,7 @@ const SimpleLineChart = ({ selectedIP }) => {
         </View>
       </View>
 
-      <ChartHistory />
+     {/*<ChartHistory />*/}
     </View>
   );
 };
