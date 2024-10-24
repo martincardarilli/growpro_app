@@ -31,12 +31,33 @@ const DeviceList = () => {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchLocalIp = async () => {
+    try {
+      // Primero intenta obtener la dirección IPv4
+      const ipv4 = await NetworkInfo.getIPV4Address();
+      if (ipv4) {
+        console.log('IPv4 Address:', ipv4);
+        setLocalIp(ipv4);
+        scanLocalNetwork(ipv4);
+      } else {
+        // Si no se encuentra IPv4, intenta obtener cualquier dirección IP
+        const ip = await NetworkInfo.getIPAddress();
+        if (ip.includes(':')) {
+          console.log('IPv6 Address detected:', ip);
+          // Puedes manejar IPv6 aquí si es necesario
+        } else {
+          console.log('IP Address:', ip);
+          setLocalIp(ip);
+          scanLocalNetwork(ip);
+        }
+      }
+    } catch (error) {
+      console.error('Error obteniendo la dirección IP:', error);
+    }
+  };
+  
   useEffect(() => {
-    NetworkInfo.getIPAddress().then((ip) => {
-      setLocalIp(ip);
-      console.log('Local IP:', ip);
-      scanLocalNetwork(ip);
-    });
+    fetchLocalIp();
   }, []);
 
   const scanLocalNetwork = async (localIp) => {
@@ -51,7 +72,7 @@ const DeviceList = () => {
     for (let i = 2; i <= 254; i++) {
       const testIp = `${baseIp}.${i}`;
       scanPromises.push(
-        fetchWithTimeout(`http://${testIp}/status`, { method: 'GET' }, 2000)
+        fetchWithTimeout(`http://${testIp}/status`, { method: 'GET' }, 5000)
           .then(async (response) => {
             if (response.ok) {
               const responseBody = await response.text();
@@ -72,7 +93,7 @@ const DeviceList = () => {
 
   const handleLocalRefresh = async () => {
     setRefreshing(true);
-    const ip = await NetworkInfo.getIPAddress();
+    const ip = await NetworkInfo.getIPV4Address();
     setLocalIp(ip);
     console.log('Local IP Refresh:', ip);
 

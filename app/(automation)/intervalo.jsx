@@ -45,7 +45,7 @@ const CreateAutomation = () => {
               ...device,
               macAddress: 'Unknown',
               switches: [],
-              error: 'Status malformed', 
+              error: 'Status malformed',
             };
           }
         });
@@ -63,7 +63,7 @@ const CreateAutomation = () => {
 
   const handleDeviceChange = (deviceId) => {
     setSelectedDeviceId(deviceId);
-    setSelectedSwitchIndex(null); 
+    setSelectedSwitchIndex(null);
   };
 
   const handleSwitchChange = (switchIndex) => {
@@ -79,13 +79,19 @@ const CreateAutomation = () => {
     try {
       setUploading(true);
       const ipAddress = selectedDevice.ip;
-    //  const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
+      //  const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
 
       const configData = {
         tipo: 'intervalo',
+        horasPrendido: form.horasPrendido,
+        minutosPrendido: form.minutosPrendido,
+        segundosPrendido: form.segundosPrendido,
+        horasApagado: form.horasApagado,
+        minutosApagado: form.minutosApagado,
+        segundosApagado: form.segundosApagado,
       };
 
-      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
+      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&config=${encodeURIComponent(JSON.stringify(configData))}}`;
 
       console.log('Attempting to configure switch with URL:', url);
 
@@ -115,11 +121,9 @@ const CreateAutomation = () => {
 
   // Function to calculate total interval time (in seconds)
   const calculateTotalTime = () => {
-    const totalPrendido =
-      parseInt(form.horasPrendido) * 3600 + parseInt(form.minutosPrendido) * 60 + parseInt(form.segundosPrendido);
-    const totalApagado =
-      parseInt(form.horasApagado) * 3600 + parseInt(form.minutosApagado) * 60 + parseInt(form.segundosApagado);
-    
+    const totalPrendido = parseInt(form.horasPrendido) * 3600 + parseInt(form.minutosPrendido) * 60 + parseInt(form.segundosPrendido);
+    const totalApagado = parseInt(form.horasApagado) * 3600 + parseInt(form.minutosApagado) * 60 + parseInt(form.segundosApagado);
+
     return totalPrendido + totalApagado;
   };
 
@@ -142,7 +146,7 @@ const CreateAutomation = () => {
         titulo,
         descripcion,
         device: selectedDevice.macAddress,
-        switch: selectedSwitchIndex,
+        switch: String(selectedSwitchIndex),
         config: {
           tipo: 'intervalo',
           horasPrendido: form.horasPrendido,
@@ -172,31 +176,19 @@ const CreateAutomation = () => {
         <View className="mt-5">
           <Text className="text-lg text-white font-semibold">Tiempo Prendido</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Picker
-              selectedValue={form.horasPrendido}
-              onValueChange={(value) => setForm({ ...form, horasPrendido: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.horasPrendido} onValueChange={(value) => setForm({ ...form, horasPrendido: value })} style={{ flex: 1 }}>
               {[...Array(24).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}h`} value={i} />
               ))}
             </Picker>
 
-            <Picker
-              selectedValue={form.minutosPrendido}
-              onValueChange={(value) => setForm({ ...form, minutosPrendido: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.minutosPrendido} onValueChange={(value) => setForm({ ...form, minutosPrendido: value })} style={{ flex: 1 }}>
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}m`} value={i} />
               ))}
             </Picker>
 
-            <Picker
-              selectedValue={form.segundosPrendido}
-              onValueChange={(value) => setForm({ ...form, segundosPrendido: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.segundosPrendido} onValueChange={(value) => setForm({ ...form, segundosPrendido: value })} style={{ flex: 1 }}>
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}s`} value={i} />
               ))}
@@ -207,31 +199,19 @@ const CreateAutomation = () => {
         <View className="mt-5">
           <Text className="text-lg text-white font-semibold">Tiempo Apagado</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Picker
-              selectedValue={form.horasApagado}
-              onValueChange={(value) => setForm({ ...form, horasApagado: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.horasApagado} onValueChange={(value) => setForm({ ...form, horasApagado: value })} style={{ flex: 1 }}>
               {[...Array(24).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}h`} value={i} />
               ))}
             </Picker>
 
-            <Picker
-              selectedValue={form.minutosApagado}
-              onValueChange={(value) => setForm({ ...form, minutosApagado: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.minutosApagado} onValueChange={(value) => setForm({ ...form, minutosApagado: value })} style={{ flex: 1 }}>
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}m`} value={i} />
               ))}
             </Picker>
 
-            <Picker
-              selectedValue={form.segundosApagado}
-              onValueChange={(value) => setForm({ ...form, segundosApagado: value })}
-              style={{ flex: 1 }}
-            >
+            <Picker selectedValue={form.segundosApagado} onValueChange={(value) => setForm({ ...form, segundosApagado: value })} style={{ flex: 1 }}>
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}s`} value={i} />
               ))}

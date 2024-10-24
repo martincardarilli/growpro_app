@@ -1,5 +1,5 @@
 {
-  "name": "sora",
+  "name": "growpro",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
@@ -23,6 +23,7 @@
     "expo-linking": "~6.2.2",
     "expo-router": "~3.4.10",
     "expo-status-bar": "~1.11.1",
+    "growpro": "file:",
     "install": "^0.13.0",
     "intl": "^1.2.5",
     "metro": "^0.80.11",
@@ -42,8 +43,7 @@
     "react-native-screens": "~3.29.0",
     "react-native-svg": "14.1.0",
     "react-native-url-polyfill": "^2.0.0",
-    "react-native-web": "~0.19.6",
-    "sora": "file:"
+    "react-native-web": "~0.19.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

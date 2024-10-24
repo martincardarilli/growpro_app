@@ -12,3 +12,14 @@ ESTE ERA
 npx expo start --dev-client
 npx expo start --dev-client --port 19000
 
+
+
+
+
+
+ESTE PA CORRER
+npx expo start --dev-client --port 19000
+
+ESTE PA CONSTRUIR
+eas build --profile development-simulator --platform ios
+eas build --profile development --platform android

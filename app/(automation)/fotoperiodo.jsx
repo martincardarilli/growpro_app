@@ -87,7 +87,7 @@ const CreateAutomation = () => {
         matriz: scheduleMatrix,
       };
 
-      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&tipo=${configData.tipo}&matriz=${encodeURIComponent(configData.matriz)}`;
+      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&config=${encodeURIComponent(configData)}`;
 
       console.log('Attempting to configure switch with URL:', url);
 
