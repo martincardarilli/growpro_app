@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, Switch, Dimensions } from "react-native";
-import { LineChart } from "react-native-gifted-charts";
-import { LinearGradient, Stop } from "react-native-svg";
-import Slider from "@react-native-community/slider"; // Si tu proyecto usa una versión más reciente de React Native
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, Switch, Dimensions } from 'react-native';
+import { LineChart } from 'react-native-gifted-charts';
+import { LinearGradient, Stop } from 'react-native-svg';
+import Slider from '@react-native-community/slider'; // Si tu proyecto usa una versión más reciente de React Native
 
-import ChartHistory from "./ChartHistory";
+import ChartHistory from './ChartHistory';
 
 const SimpleLineChart = ({ selectedIP }) => {
   // En mi casa es de 192.168.100.X
-  const [IP, setIP] = useState("http://192.168.0.111");
+  const [IP, setIP] = useState('http://192.168.0.111');
 
   // En lo de lohse es 192.168.0.X
   //const [IP, setIP] = useState("http://192.168.0.108");
 
-  const [currentTemperature, setCurrentTemperature] = useState("");
+  const [currentTemperature, setCurrentTemperature] = useState('');
 
-  const [currentHumidity, setCurrentHumidity] = useState("");
+  const [currentHumidity, setCurrentHumidity] = useState('');
 
   const customDataPointTemperature = () => {
     return (
@@ -23,10 +23,10 @@ const SimpleLineChart = ({ selectedIP }) => {
         style={{
           width: 8,
           height: 8,
-          backgroundColor: "#238B45",
+          backgroundColor: '#238B45',
           borderWidth: 4,
           borderRadius: 10,
-          borderColor: "#238B45",
+          borderColor: '#238B45',
         }}
       />
     );
@@ -38,10 +38,10 @@ const SimpleLineChart = ({ selectedIP }) => {
         style={{
           width: 8,
           height: 8,
-          backgroundColor: "#0077b6",
+          backgroundColor: '#0077b6',
           borderWidth: 4,
           borderRadius: 10,
-          borderColor: "#0077b6",
+          borderColor: '#0077b6',
         }}
       />
     );
@@ -50,7 +50,7 @@ const SimpleLineChart = ({ selectedIP }) => {
   const customLabel = (val) => {
     return (
       <View style={{ width: 70, marginLeft: 7 }}>
-        <Text style={{ color: "lightgray", fontWeight: "bold" }}>{val}</Text>
+        <Text style={{ color: 'lightgray', fontWeight: 'bold' }}>{val}</Text>
       </View>
     );
   };
@@ -58,7 +58,7 @@ const SimpleLineChart = ({ selectedIP }) => {
   // Función para leer la temperatura actual
   const readTemperature = () => {
     if (!selectedIP) {
-      console.warn("No IP selected. Please choose a device.");
+      console.warn('No IP selected. Please choose a device.');
       return;
     }
 
@@ -88,24 +88,24 @@ const SimpleLineChart = ({ selectedIP }) => {
               // customDataPoint: customDataPointTemperature,
               showStrip: true,
               stripHeight: 190,
-              stripColor: "lightgray", // Puedes definir un color aquí
+              stripColor: 'lightgray', // Puedes definir un color aquí
             },
           ];
         });
 
-        console.log("Temperature updated: " + newValue);
+        console.log('Temperature updated: ' + newValue);
       } else {
         // console.warn(`Error fetching temperature ${selectedIP}: ${this.status} - ${this.statusText} `);
       }
     };
-    xhttp.open("GET", `${selectedIP}/temperature`, true);
+    xhttp.open('GET', `${selectedIP}/temperature`, true);
     xhttp.send();
   };
 
   // Función para leer la humedad actual
   const readHumidity = () => {
     if (!selectedIP) {
-      console.warn("No IP selected. Please choose a device.");
+      console.warn('No IP selected. Please choose a device.');
       return;
     }
 
@@ -135,15 +135,15 @@ const SimpleLineChart = ({ selectedIP }) => {
               // customDataPoint: customDataPointHumidity,
               showStrip: true,
               stripHeight: 190,
-              stripColor: "lightgray", // Puedes definir un color aquí
+              stripColor: 'lightgray', // Puedes definir un color aquí
             },
           ];
         });
 
-        console.log("Humidity updated: " + newValue);
+        console.log('Humidity updated: ' + newValue);
       }
     };
-    xhttp.open("GET", `${selectedIP}/humidity`, true);
+    xhttp.open('GET', `${selectedIP}/humidity`, true);
     xhttp.send();
   };
 
@@ -163,13 +163,9 @@ const SimpleLineChart = ({ selectedIP }) => {
     }
   }, [selectedIP]);
 
-  const [dataHumedadActual, setDataHumedadActual] = useState([
-    { value: 50, dataPointText: "" },
-  ]);
+  const [dataHumedadActual, setDataHumedadActual] = useState([{ value: 50, dataPointText: '' }]);
 
-  const [dataTemperaturaActual, setDataTemperaturaActual] = useState([
-    { value: 20, dataPointText: "" },
-  ]);
+  const [dataTemperaturaActual, setDataTemperaturaActual] = useState([{ value: 20, dataPointText: '' }]);
 
   const [spacing, setSpacing] = useState(30); // Estado para controlar el valor de spacing
   const [autoScroll, setAutoScroll] = useState(true); // Estado para controlar el autoScroll
@@ -193,25 +189,25 @@ const SimpleLineChart = ({ selectedIP }) => {
     return () => clearInterval(interval);
   }, []);*/
 
-  const screenWidth = Dimensions.get("window").width;
+  const screenWidth = Dimensions.get('window').width;
 
   return (
     <View>
       <View
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
         }}
       >
         <View
           style={{
             width: screenWidth * 0.45,
-            backgroundColor: "white",
+            backgroundColor: 'white',
             marginRight: 10,
             paddingTop: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
             // justifyContent: "center",
           }}
           className=" rounded-lg"
@@ -219,8 +215,8 @@ const SimpleLineChart = ({ selectedIP }) => {
           <Text
             className="text-3xl font-psemibold mb-2"
             style={{
-              position: "absolute",
-              color: "black",
+              position: 'absolute',
+              color: 'black',
               zIndex: 2,
             }}
           >
@@ -235,7 +231,7 @@ const SimpleLineChart = ({ selectedIP }) => {
             height={150}
             noOfSections={4}
             maxValue={100}
-            scrollToEnd={false}
+            scrollToEnd={true}
             spacing={20}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
@@ -247,27 +243,27 @@ const SimpleLineChart = ({ selectedIP }) => {
             textFontSize={12}
             textColor="black"
             color="#0077b6"
-            dataPointsColor={"#0077b6"}
-            yAxisTextStyle={{ color: "gray", fontSize: 10 }}
+            dataPointsColor={'#0077b6'}
+            yAxisTextStyle={{ color: 'gray', fontSize: 10 }}
           />
         </View>
         <View
           style={{
             width: screenWidth * 0.45,
-            backgroundColor: "white",
+            backgroundColor: 'white',
             marginRight: 10,
             paddingTop: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
           }}
           className=" rounded-lg"
         >
           <Text
             className="text-3xl font-psemibold mb-2"
             style={{
-              position: "absolute",
-              color: "black",
+              position: 'absolute',
+              color: 'black',
               zIndex: 2,
             }}
           >
@@ -281,7 +277,7 @@ const SimpleLineChart = ({ selectedIP }) => {
             width={120}
             height={150}
             noOfSections={4}
-            scrollToEnd={false}
+            scrollToEnd={true}
             spacing={20}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
@@ -294,12 +290,45 @@ const SimpleLineChart = ({ selectedIP }) => {
             textFontSize={12}
             textColor="black"
             color="green"
-            dataPointsColor={"green"}
-            yAxisTextStyle={{ color: "gray", fontSize: 10 }}
+            dataPointsColor={'green'}
+            yAxisTextStyle={{ color: 'gray', fontSize: 10 }}
           />
         </View>
       </View>
 
+      <View  className="rounded-lg mt-5" style={{
+            backgroundColor: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            // justifyContent: "center",
+          }}>
+        <LineChart
+          style={{
+            paddingBottom: -20,
+          }}
+          data={dataTemperaturaActual}
+          data2={dataHumedadActual}
+          noOfSections={4}
+          maxValue={100}
+          scrollToEnd={true}
+          spacing={50}
+          xAxisColor="lightgray"
+          yAxisColor="lightgray"
+          curved
+          //hideDataPoints
+          //hideYAxisText
+          hideXAxisText
+          textShiftY={-8}
+          textFontSize={12}
+          textColor="black"
+          color="green"
+          color2="#0077b6"
+          dataPointsColor={'green'}
+          dataPointsColor2={'#0077b6'} 
+          yAxisTextStyle={{ color: 'gray', fontSize: 10 }}
+        />
+      </View>
       <ChartHistory />
     </View>
   );
