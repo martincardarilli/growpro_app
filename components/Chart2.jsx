@@ -308,9 +308,9 @@ const SimpleLineChart = ({ selectedIP }) => {
             paddingBottom: -20,
           }}
           data={dataTemperaturaActual}
-          data2={dataHumedadActual}
+          width={250}
           noOfSections={4}
-          maxValue={100}
+          maxValue={40}
           scrollToEnd={true}
           spacing={50}
           xAxisColor="lightgray"
@@ -325,8 +325,17 @@ const SimpleLineChart = ({ selectedIP }) => {
           color="green"
           color2="#0077b6"
           dataPointsColor={'green'}
-          dataPointsColor2={'#0077b6'} 
           yAxisTextStyle={{ color: 'gray', fontSize: 10 }}
+          secondaryData={dataHumedadActual}
+          secondaryLineConfig={{color: '#0077b6', dataPointsColor:'#0077b6'}}
+          secondaryYAxis={{
+            maxValue: 100,
+            noOfSections: 4,
+            showFractionalValues: true,
+            roundToDigits: 3,
+            yAxisColor: '#0077b6',
+            yAxisIndicesColor: '#0077b6',
+          }}
         />
       </View>
       <ChartHistory />
