@@ -232,7 +232,7 @@ const SimpleLineChart = ({ selectedIP }) => {
             noOfSections={4}
             maxValue={100}
             scrollToEnd={true}
-            spacing={20}
+            spacing={50}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
             curved
@@ -278,7 +278,7 @@ const SimpleLineChart = ({ selectedIP }) => {
             height={150}
             noOfSections={4}
             scrollToEnd={true}
-            spacing={20}
+            spacing={50}
             xAxisColor="lightgray"
             yAxisColor="lightgray"
             curved
