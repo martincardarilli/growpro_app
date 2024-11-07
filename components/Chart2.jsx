@@ -300,7 +300,7 @@ const SimpleLineChart = ({ selectedIP }) => {
         </View>
       </View>
 
-     {/*<ChartHistory />*/}
+      <ChartHistory />
     </View>
   );
 };

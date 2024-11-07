@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, Text, View, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { getAllDevices, postAutomatizacion } from '../../lib/appwrite';
-import { CustomButton, FormField } from '../../components';
-import { useGlobalContext } from '../../context/GlobalProvider';
-import { router } from 'expo-router';
+import React, { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, Text, View, Alert } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { getAllDevices, postAutomatizacion } from "../../lib/appwrite";
+import { CustomButton, FormField } from "../../components";
+import { useGlobalContext } from "../../context/GlobalProvider";
+import { router } from "expo-router";
 
 const CreateAutomation = () => {
   const { user } = useGlobalContext();
@@ -16,8 +16,8 @@ const CreateAutomation = () => {
 
   // Form state with hours, minutes, and seconds for on and off times
   const [form, setForm] = useState({
-    titulo: 'FASTEST',
-    descripcion: 'FASTEST',
+    titulo: "FASTEST",
+    descripcion: "FASTEST",
     horasPrendido: 0,
     minutosPrendido: 0,
     segundosPrendido: 0,
@@ -40,25 +40,30 @@ const CreateAutomation = () => {
               switches: status.switches || [],
             };
           } catch (error) {
-            console.warn(`Error parsing status for device ${device.$id}:`, error);
+            console.warn(
+              `Error parsing status for device ${device.$id}:`,
+              error
+            );
             return {
               ...device,
-              macAddress: 'Unknown',
+              macAddress: "Unknown",
               switches: [],
-              error: 'Status malformed',
+              error: "Status malformed",
             };
           }
         });
         setDevices(parsedDevices);
       } catch (error) {
-        console.error('Error fetching devices:', error);
+        console.error("Error fetching devices:", error);
       }
     };
 
     fetchDevices();
   }, []);
 
-  const selectedDevice = devices.find((device) => device.$id === selectedDeviceId);
+  const selectedDevice = devices.find(
+    (device) => device.$id === selectedDeviceId
+  );
   const selectedSwitch = selectedDevice?.switches?.[selectedSwitchIndex];
 
   const handleDeviceChange = (deviceId) => {
@@ -73,7 +78,7 @@ const CreateAutomation = () => {
   const configureSwitch = async () => {
     if (!selectedDevice || selectedSwitchIndex === null) {
       setUploading(false);
-      return Alert.alert('Error', 'Please select a device and a switch.');
+      return Alert.alert("Error", "Please select a device and a switch.");
     }
 
     try {
@@ -82,31 +87,33 @@ const CreateAutomation = () => {
       //  const scheduleMatrix = createScheduleMatrix(form.horaEncendido, form.horaApagado);
 
       const configData = {
-        tipo: 'intervalo',
-        horasPrendido: form.horasPrendido,
-        minutosPrendido: form.minutosPrendido,
-        segundosPrendido: form.segundosPrendido,
-        horasApagado: form.horasApagado,
-        minutosApagado: form.minutosApagado,
-        segundosApagado: form.segundosApagado,
+        tipo: "intervalo",
+        horasPrendido: parseInt(form.horasPrendido),
+        minutosPrendido: parseInt(form.minutosPrendido),
+        segundosPrendido: parseInt(form.segundosPrendido),
+        horasApagado: parseInt(form.horasApagado),
+        minutosApagado: parseInt(form.minutosApagado),
+        segundosApagado: parseInt(form.segundosApagado),
       };
 
-      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&config=${encodeURIComponent(JSON.stringify(configData))}}`;
+      const url = `http://${ipAddress}/setConfig?index=${selectedSwitchIndex}&config=${JSON.stringify(
+        configData
+      )}`;
 
-      console.log('Attempting to configure switch with URL:', url);
+      console.log("Attempting to configure switch with URL:", url);
 
       const xhttp = new XMLHttpRequest();
-      xhttp.open('GET', url, true);
+      xhttp.open("GET", url, true);
       xhttp.timeout = 10000; // 10 segundos de timeout
 
       xhttp.onreadystatechange = () => {
         if (xhttp.readyState === 4) {
           setUploading(false);
           if (xhttp.status === 200) {
-            Alert.alert('Success', 'Switch configuration updated on device');
+            Alert.alert("Success", "Switch configuration updated on device");
           } else {
-            console.error('Failed to update switch:', xhttp.responseText);
-            Alert.alert('Error', 'Failed to update switch on device.');
+            console.error("Failed to update switch:", xhttp.responseText);
+            Alert.alert("Error", "Failed to update switch on device.");
           }
         }
       };
@@ -114,15 +121,21 @@ const CreateAutomation = () => {
       xhttp.send();
     } catch (error) {
       setUploading(false);
-      console.error('Error updating switch on device:', error);
-      Alert.alert('Error', 'Failed to update switch on device.');
+      console.error("Error updating switch on device:", error);
+      Alert.alert("Error", "Failed to update switch on device.");
     }
   };
 
   // Function to calculate total interval time (in seconds)
   const calculateTotalTime = () => {
-    const totalPrendido = parseInt(form.horasPrendido) * 3600 + parseInt(form.minutosPrendido) * 60 + parseInt(form.segundosPrendido);
-    const totalApagado = parseInt(form.horasApagado) * 3600 + parseInt(form.minutosApagado) * 60 + parseInt(form.segundosApagado);
+    const totalPrendido =
+      parseInt(form.horasPrendido) * 3600 +
+      parseInt(form.minutosPrendido) * 60 +
+      parseInt(form.segundosPrendido);
+    const totalApagado =
+      parseInt(form.horasApagado) * 3600 +
+      parseInt(form.minutosApagado) * 60 +
+      parseInt(form.segundosApagado);
 
     return totalPrendido + totalApagado;
   };
@@ -137,7 +150,9 @@ const CreateAutomation = () => {
     const { titulo, descripcion } = form;
 
     if (!titulo || !descripcion) {
-      return Alert.alert('Por favor, proporciona todos los campos: título y descripción.');
+      return Alert.alert(
+        "Por favor, proporciona todos los campos: título y descripción."
+      );
     }
 
     setUploading(true);
@@ -148,7 +163,7 @@ const CreateAutomation = () => {
         device: selectedDevice.macAddress,
         switch: String(selectedSwitchIndex),
         config: {
-          tipo: 'intervalo',
+          tipo: "intervalo",
           horasPrendido: form.horasPrendido,
           minutosPrendido: form.minutosPrendido,
           segundosPrendido: form.segundosPrendido,
@@ -159,10 +174,10 @@ const CreateAutomation = () => {
         userId: user.$id,
       });
 
-      Alert.alert('Éxito', 'Automatización creada exitosamente');
-      router.push('/automatizaciones');
+      Alert.alert("Éxito", "Automatización creada exitosamente");
+      router.push("/automatizaciones");
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert("Error", error.message);
     } finally {
       setUploading(false);
     }
@@ -174,21 +189,43 @@ const CreateAutomation = () => {
         <Text className="text-2xl text-white font-semibold">Intervalo</Text>
 
         <View className="mt-5">
-          <Text className="text-lg text-white font-semibold">Tiempo Prendido</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Picker selectedValue={form.horasPrendido} onValueChange={(value) => setForm({ ...form, horasPrendido: value })} style={{ flex: 1 }}>
+          <Text className="text-lg text-white font-semibold">
+            Tiempo Prendido
+          </Text>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Picker
+              selectedValue={form.horasPrendido}
+              onValueChange={(value) =>
+                setForm({ ...form, horasPrendido: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(24).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}h`} value={i} />
               ))}
             </Picker>
 
-            <Picker selectedValue={form.minutosPrendido} onValueChange={(value) => setForm({ ...form, minutosPrendido: value })} style={{ flex: 1 }}>
+            <Picker
+              selectedValue={form.minutosPrendido}
+              onValueChange={(value) =>
+                setForm({ ...form, minutosPrendido: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}m`} value={i} />
               ))}
             </Picker>
 
-            <Picker selectedValue={form.segundosPrendido} onValueChange={(value) => setForm({ ...form, segundosPrendido: value })} style={{ flex: 1 }}>
+            <Picker
+              selectedValue={form.segundosPrendido}
+              onValueChange={(value) =>
+                setForm({ ...form, segundosPrendido: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}s`} value={i} />
               ))}
@@ -197,21 +234,43 @@ const CreateAutomation = () => {
         </View>
 
         <View className="mt-5">
-          <Text className="text-lg text-white font-semibold">Tiempo Apagado</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Picker selectedValue={form.horasApagado} onValueChange={(value) => setForm({ ...form, horasApagado: value })} style={{ flex: 1 }}>
+          <Text className="text-lg text-white font-semibold">
+            Tiempo Apagado
+          </Text>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Picker
+              selectedValue={form.horasApagado}
+              onValueChange={(value) =>
+                setForm({ ...form, horasApagado: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(24).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}h`} value={i} />
               ))}
             </Picker>
 
-            <Picker selectedValue={form.minutosApagado} onValueChange={(value) => setForm({ ...form, minutosApagado: value })} style={{ flex: 1 }}>
+            <Picker
+              selectedValue={form.minutosApagado}
+              onValueChange={(value) =>
+                setForm({ ...form, minutosApagado: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}m`} value={i} />
               ))}
             </Picker>
 
-            <Picker selectedValue={form.segundosApagado} onValueChange={(value) => setForm({ ...form, segundosApagado: value })} style={{ flex: 1 }}>
+            <Picker
+              selectedValue={form.segundosApagado}
+              onValueChange={(value) =>
+                setForm({ ...form, segundosApagado: value })
+              }
+              style={{ flex: 1 }}
+            >
               {[...Array(60).keys()].map((i) => (
                 <Picker.Item key={i} label={`${i}s`} value={i} />
               ))}
@@ -222,14 +281,15 @@ const CreateAutomation = () => {
         {/* Mostrar el tiempo total calculado */}
         <View className="mt-5">
           <Text className="text-lg text-white font-semibold">
-            Tiempo intervalo total: {totalHours} horas, {totalMinutes} minutos, {totalSeconds} segundos
+            Tiempo intervalo total: {totalHours} horas, {totalMinutes} minutos,{" "}
+            {totalSeconds} segundos
           </Text>
         </View>
 
         {/* Añadir línea divisoria */}
         <View
           style={{
-            borderBottomColor: 'gray',
+            borderBottomColor: "gray",
             borderBottomWidth: 2,
             marginVertical: 50,
           }}
@@ -253,56 +313,79 @@ const CreateAutomation = () => {
         {/* Añadir línea divisoria */}
         <View
           style={{
-            borderBottomColor: 'gray',
+            borderBottomColor: "gray",
             borderBottomWidth: 2,
             marginVertical: 50,
           }}
         />
 
-        <Text className="text-lg text-white font-semibold mt-5">Select Device</Text>
+        <Text className="text-lg text-white font-semibold mt-5">
+          Select Device
+        </Text>
         <Picker
           selectedValue={selectedDeviceId}
           onValueChange={handleDeviceChange}
-          style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
-          itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
+          style={{ color: "white", fontSize: 12 }} // Aplica el color al Picker
+          itemStyle={{ color: "white", fontSize: 12 }} // Esto es útil para iOS
         >
-          <Picker.Item label="Select a device" value={null} style={{ color: 'white' }} />
+          <Picker.Item
+            label="Select a device"
+            value={null}
+            style={{ color: "white" }}
+          />
           {devices.map((device) => (
             <Picker.Item
               key={device.$id}
-              label={`${device.name || 'Unknown'} (${device.model}: ${device.macAddress}) ${device.error ? ' (Error in status)' : ''}`}
+              label={`${device.name || "Unknown"} (${device.model}: ${
+                device.macAddress
+              }) ${device.error ? " (Error in status)" : ""}`}
               value={device.$id}
-              style={{ color: 'white' }} // Aplica el color a cada item para iOS
+              style={{ color: "white" }} // Aplica el color a cada item para iOS
             />
           ))}
         </Picker>
 
         {selectedDevice && selectedDevice.switches && !selectedDevice.error && (
           <>
-            <Text className="text-lg text-white font-semibold mt-5">Select Switch</Text>
+            <Text className="text-lg text-white font-semibold mt-5">
+              Select Switch
+            </Text>
             <Picker
               selectedValue={selectedSwitchIndex}
               onValueChange={handleSwitchChange}
-              style={{ color: 'white', fontSize: 12 }} // Aplica el color al Picker
-              itemStyle={{ color: 'white', fontSize: 12 }} // Esto es útil para iOS
+              style={{ color: "white", fontSize: 12 }} // Aplica el color al Picker
+              itemStyle={{ color: "white", fontSize: 12 }} // Esto es útil para iOS
             >
-              <Picker.Item label="Select a switch" value={null} style={{ color: 'white' }} />
+              <Picker.Item
+                label="Select a switch"
+                value={null}
+                style={{ color: "white" }}
+              />
               {selectedDevice.switches.map((sw, idx) => (
                 <Picker.Item
                   key={idx}
                   //label={`Name: ${sw.nombre}, Number: ${idx + 1}, Mode: ${sw.modo}`}
                   label={`${sw.nombre} (${idx + 1})`}
                   value={idx}
-                  style={{ color: 'white' }} // Aplica el color a cada item para iOS
+                  style={{ color: "white" }} // Aplica el color a cada item para iOS
                 />
               ))}
             </Picker>
 
-            <CustomButton title="Configure Switch" handlePress={configureSwitch} containerStyles="mt-5" />
+            <CustomButton
+              title="Configure Switch"
+              handlePress={configureSwitch}
+              containerStyles="mt-5"
+            />
           </>
         )}
 
-        <CustomButton title="Submit" handlePress={submit} containerStyles="mt-5" isLoading={uploading} />
+        <CustomButton
+          title="Submit"
+          handlePress={submit}
+          containerStyles="mt-5"
+          isLoading={uploading}
+        />
       </ScrollView>
     </SafeAreaView>
   );
