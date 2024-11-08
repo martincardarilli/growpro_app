@@ -17,6 +17,9 @@ const SimpleLineChart = ({ selectedIP }) => {
 
   const [currentHumidity, setCurrentHumidity] = useState('');
 
+  const [dataDPV, setDataDPV] = useState([{ value: 0, dataPointText: '' }]);
+
+
   const customDataPointTemperature = () => {
     return (
       <View
@@ -55,6 +58,22 @@ const SimpleLineChart = ({ selectedIP }) => {
     );
   };
 
+  const updateDPVData = (newTemperature, newHumidity) => {
+    const dpvValue = calculateDPV(newTemperature, newHumidity);
+    setDataDPV((prevData) => [
+      ...prevData,
+      { value: dpvValue, dataPointText: dpvValue.toFixed(2) },
+    ]);
+  };
+
+  const calculateDPV = (temperature, humidity) => {
+    const T = parseFloat(temperature);
+    const H = parseFloat(humidity);
+    const SVP = 0.6108 * Math.exp((17.27 * T) / (T + 237.3)); // kPa
+    const AVP = SVP * (H / 100); // kPa
+    return SVP - AVP; // DPV in kPa
+  };
+
   // Función para leer la temperatura actual
   const readTemperature = () => {
     if (!selectedIP) {
@@ -67,6 +86,8 @@ const SimpleLineChart = ({ selectedIP }) => {
       if (this.readyState === 4 && this.status === 200) {
         const newValue = this.responseText;
         setCurrentTemperature(newValue);
+updateDPVData(newValue, currentHumidity); // Update DPV after setting temperature
+
 
         setDataTemperaturaActual((prevData) => {
           const updatedData = prevData.map((item, index) => {
@@ -114,6 +135,8 @@ const SimpleLineChart = ({ selectedIP }) => {
       if (this.readyState === 4 && this.status === 200) {
         const newValue = this.responseText;
         setCurrentHumidity(newValue);
+updateDPVData(currentTemperature, newValue); // Update DPV after setting humidity
+
 
         setDataHumedadActual((prevData) => {
           const updatedData = prevData.map((item, index) => {
@@ -295,6 +318,45 @@ const SimpleLineChart = ({ selectedIP }) => {
           />
         </View>
       </View>
+
+
+
+
+
+  {/* DPV Chart */}
+  <View className="rounded-lg mt-5" style={{
+            backgroundColor: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            // justifyContent: "center",
+          }}>
+        <Text >DPV (kPa)</Text>
+        <LineChart
+          data={dataDPV}
+          width={250}
+          height={150}
+          noOfSections={4}
+          maxValue={3}
+          scrollToEnd={true}
+          spacing={50}
+          curved
+          color="#ff6347"
+        />
+      </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       <View  className="rounded-lg mt-5" style={{
             backgroundColor: 'white',
