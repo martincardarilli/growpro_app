@@ -74,7 +74,7 @@ const Grow = () => {
 
   // Función para enviar el estado del viento al servidor
   const setWind = (index, boolean) => {
-    console.log("setwind/");
+    console.log(`${selectedIP}/prenderSwitch${index + 1}`);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
